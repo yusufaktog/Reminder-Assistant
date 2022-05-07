@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1064158595393",
+    "project_id": "reminder-assistant-9e6a4",
+    "storage_bucket": "reminder-assistant-9e6a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1064158595393:android:1fbf753402a657d78039c0",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1064158595393-25q86cvjo8bq1iqdtbod5ikt1hn4sa69.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQGsZZA1_Ffkdqz6PPsDh08VAtVdggQxY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1064158595393-25q86cvjo8bq1iqdtbod5ikt1hn4sa69.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
