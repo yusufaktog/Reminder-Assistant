@@ -70,7 +70,8 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
               TextButton(
                   onPressed: () {
                     TaskService _taskService = TaskService();
-                    _taskService.createTask(Task(title: "title", description: "Test Descr", time: Timestamp.fromDate(DateTime.now()), priority: 1));
+                    _taskService
+                        .createTask(Task(title: "title", description: "Test Descr", time: Timestamp.fromDate(DateTime.now()), priority: "Minor"));
                   },
                   child: Text(
                     widget.person.name,

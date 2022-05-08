@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reminder_app/constants.dart';
 
 class CustomCard extends StatelessWidget {
   const CustomCard(
@@ -6,7 +7,7 @@ class CustomCard extends StatelessWidget {
       required this.backGroundColor,
       required this.verticalMargin,
       required this.horizontalMargin,
-      required this.allPadding,
+      required this.padding,
       required this.child,
       required this.borderRadius})
       : super(key: key);
@@ -14,7 +15,7 @@ class CustomCard extends StatelessWidget {
   final Color backGroundColor;
   final double verticalMargin;
   final double horizontalMargin;
-  final double allPadding;
+  final EdgeInsets padding;
   final Widget child;
   final double borderRadius;
 
@@ -24,7 +25,7 @@ class CustomCard extends StatelessWidget {
       color: backGroundColor,
       margin: EdgeInsets.symmetric(vertical: verticalMargin, horizontal: horizontalMargin),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
-      child: Padding(padding: EdgeInsets.all(allPadding), child: child),
+      child: Padding(padding: padding, child: child),
     );
   }
 }
@@ -111,4 +112,83 @@ Future<Object?> switchPage(BuildContext context, Widget widget) async {
         builder: (_) => widget,
       ),
       (route) => false);
+}
+
+class CustomUnderlinedTextField extends StatelessWidget {
+  final Function onChanged;
+  final TextStyle style;
+  final String? labelText;
+  final String? hintText;
+  final Color? borderColor;
+
+  const CustomUnderlinedTextField({Key? key, required this.onChanged, required this.style, this.hintText, this.labelText, this.borderColor})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      onChanged: (value) {
+        onChanged(value);
+      },
+      style: style,
+      decoration: InputDecoration(
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: borderColor ?? Colors.black),
+          ),
+          labelText: labelText ?? "",
+          hintText: hintText ?? "",
+          labelStyle: style),
+    );
+  }
+}
+//
+
+class CustomDropDownMenu extends StatelessWidget {
+  final Function onChanged;
+  final List<dynamic> items;
+  final Icon? icon;
+  final TextStyle textStyle;
+  final int? elevation;
+  final Color? dropDownColor;
+  final dynamic dropDownValue;
+
+  const CustomDropDownMenu({
+    Key? key,
+    required this.onChanged,
+    required this.items,
+    required this.textStyle,
+    required this.dropDownValue,
+    this.dropDownColor,
+    this.icon,
+    this.elevation,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<dynamic>(
+      value: dropDownValue,
+      icon: icon ??
+          Icon(
+            Icons.arrow_drop_down_sharp,
+            color: mainTheme.primaryColor,
+            size: 36,
+          ),
+      elevation: elevation ?? 1,
+      style: textStyle,
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      dropdownColor: dropDownColor ?? Colors.white,
+      onChanged: (value) {
+        onChanged(value);
+      },
+      items: items.map<DropdownMenuItem<dynamic>>((dynamic value) {
+        return DropdownMenuItem<dynamic>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
 }

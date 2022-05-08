@@ -27,12 +27,13 @@ final ThemeData mainTheme = ThemeData(
 
 // Define the default font family.
   fontFamily: 'Georgia',
+  textTheme: const TextTheme(
+    headline1: TextStyle(fontSize: 36.0, fontWeight: FontWeight.bold, color: Colors.black),
+    headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic, color: Colors.black),
+    bodyText1: TextStyle(fontSize: 18.0, fontFamily: 'Hind', color: Colors.black),
+    bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind', color: Colors.black),
+  ),
 
 // Define the default `TextTheme`. Use this to specify the default
 // text styling for headlines, titles, bodies of text, and more.
-  textTheme: const TextTheme(
-    headline1: TextStyle(fontSize: 36.0, fontWeight: FontWeight.bold),
-    headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-    bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind', color: Colors.black),
-  ),
 );

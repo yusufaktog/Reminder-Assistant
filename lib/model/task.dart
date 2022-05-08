@@ -5,7 +5,7 @@ class Task {
   final String title;
   final String description;
   final Timestamp time;
-  final int priority;
+  final String priority;
   final Notification? notification;
 
   Task({required this.priority, required this.time, required this.title, this.notification, required this.description});

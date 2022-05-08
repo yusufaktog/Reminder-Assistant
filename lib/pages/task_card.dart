@@ -59,16 +59,18 @@ class _TaskCardState extends State<TaskCard> {
         adjustDigitPrecision(dateTime.minute);
   }
 
-  Color adjustCardPriorityColor(int priority) {
+  Color adjustCardPriorityColor(String priority) {
     switch (priority) {
-      case 1:
-        return Colors.lightGreen;
-      case 2:
-        return Colors.yellowAccent[400] ?? Colors.yellowAccent;
-      case 3:
-        return Colors.redAccent;
+      case "Minor":
+        return Colors.grey;
+      case "Medium":
+        return Colors.green;
+      case "Major":
+        return Colors.yellow;
+      case "Critical":
+        return Colors.red;
       default:
-        return Colors.lightGreen;
+        return Colors.grey;
     }
   }
 
