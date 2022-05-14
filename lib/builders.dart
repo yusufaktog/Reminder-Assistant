@@ -206,8 +206,22 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
 }
 
 class MultiSelect extends StatefulWidget {
-  final List<String> items;
-  const MultiSelect({Key? key, required this.items}) : super(key: key);
+  final List<dynamic> items;
+  final String title;
+  final bool allowMultipleSelection;
+  final Function onSubmit;
+  final Function onCancel;
+  final List<dynamic> selectedItems;
+
+  const MultiSelect(
+      {Key? key,
+      required this.items,
+      required this.allowMultipleSelection,
+      required this.onSubmit,
+      required this.onCancel,
+      required this.selectedItems,
+      required this.title})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _MultiSelectState();
@@ -215,39 +229,38 @@ class MultiSelect extends StatefulWidget {
 
 class _MultiSelectState extends State<MultiSelect> {
   // this variable holds the selected items
-  final List<String> _selectedItems = [];
 
 // This function is triggered when a checkbox is checked or unchecked
-  void _itemChange(String itemValue, bool isSelected) {
+  void _itemChange(dynamic itemValue, bool isSelected) {
     setState(() {
+      if (!widget.allowMultipleSelection) {
+        widget.selectedItems.clear();
+        widget.selectedItems.add(itemValue);
+        return;
+      }
+
       if (isSelected) {
-        _selectedItems.add(itemValue);
+        widget.selectedItems.add(itemValue);
       } else {
-        _selectedItems.remove(itemValue);
+        widget.selectedItems.remove(itemValue);
       }
     });
   }
 
   // this function is called when the Cancel button is pressed
-  void _cancel() {
-    Navigator.pop(context);
-  }
-
-// this function is called when the Submit button is tapped
-  void _submit() {
-    Navigator.pop(context, _selectedItems);
-  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Select Topics'),
+      alignment: Alignment.center,
+      title: _createTitle(),
       content: SingleChildScrollView(
         child: ListBody(
           children: widget.items
               .map((item) => CheckboxListTile(
-                    value: _selectedItems.contains(item),
-                    title: Text(item),
+                    selectedTileColor: mainTheme.primaryColor,
+                    value: widget.selectedItems.contains(item),
+                    title: Text(item.toString(), style: mainTheme.textTheme.bodyText1),
                     controlAffinity: ListTileControlAffinity.leading,
                     onChanged: (isChecked) => _itemChange(item, isChecked!),
                   ))
@@ -255,15 +268,38 @@ class _MultiSelectState extends State<MultiSelect> {
         ),
       ),
       actions: [
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: _cancel,
-        ),
         ElevatedButton(
-          child: const Text('Submit'),
-          onPressed: _submit,
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.white), alignment: Alignment.centerLeft),
+          child: Text('Cancel', style: mainTheme.textTheme.bodyText1),
+          onPressed: () {
+            widget.onCancel();
+          },
         ),
+        SizedBox(width: 70),
+        ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.white),
+            ),
+            child: Text('Submit', style: mainTheme.textTheme.bodyText1),
+            onPressed: () {
+              widget.onSubmit();
+            }),
       ],
     );
+  }
+
+  Widget _createTitle() {
+    switch (widget.title) {
+      case "Weekly":
+        return Text("Select The days to repeat");
+      case "Hourly":
+        return Text("Repeat per hours");
+      case "Monthly":
+        return Text("Select The months to repeat");
+      case "Yearly":
+        return Text("Repeat per years");
+      default:
+        return Text("Select The days to repeat");
+    }
   }
 }

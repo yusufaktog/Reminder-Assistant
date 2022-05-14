@@ -27,7 +27,8 @@ class CreateTaskPage extends StatefulWidget {
 
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
-  final List<String> _repetitionItems = <String>["No Repetition", "Daily", "Weekly", "Monthly"];
+  final List<String> _repetitionItems = <String>["No Repetition", "Hourly", "Daily", "Weekly", "Monthly", "Yearly"];
+  final List<dynamic> _selectedPriorityItems = [];
 
   var _title = "";
   var _description = "";
@@ -137,24 +138,39 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
-                      onChanged: (dynamic value) {
-                        _repetition = value!;
+                      onChanged: (dynamic value) async {
+                        _repetition = value;
                         setState(() {
                           _repetitionItems.remove(value);
                           _repetitionItems.insert(0, value);
                         });
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MultiSelect(
+                                items: _getSelectedItemList(value),
+                                allowMultipleSelection: _checkMultipleSelection(value),
+                                onSubmit: () {
+                                  _selectedPriorityItems.add(value);
+                                  //Navigator.pop(context, _selectedPriorityItems);
+                                  _selectedPriorityItems.forEach((element) {
+                                    print(element);
+                                  });
+                                },
+                                onCancel: () {
+                                  Navigator.pop(context);
+                                  _selectedPriorityItems.clear();
+                                },
+                                selectedItems: _selectedPriorityItems,
+                                title: value,
+                              );
+                            });
                       },
                       dropDownValue: _repetitionItems.first,
                       items: _repetitionItems,
                       dropDownColor: Colors.white,
                       itemTextStyle: mainTheme.textTheme.headline5,
-                      onTap: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return MultiSelect(items: _priorityItems);
-                            });
-                      },
+                      onTap: () {},
                     ),
                   ),
                 ],
@@ -181,5 +197,30 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         ),
       ),
     );
+  }
+
+  dynamic _getSelectedItemList(dynamic selectedItem) {
+    switch (selectedItem) {
+      case "Hourly":
+        return <int>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      case "Weekly":
+        return <String>["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      case "Monthly":
+        return <String>["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      case "Yearly":
+        return <int>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      default:
+        return <String>["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    }
+  }
+
+  bool _checkMultipleSelection(dynamic selectedItem) {
+    switch (selectedItem) {
+      case "Hourly":
+      case "Yearly":
+        return false;
+      default:
+        return true;
+    }
   }
 }

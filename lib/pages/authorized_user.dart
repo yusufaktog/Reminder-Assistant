@@ -89,7 +89,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
             children: [
               IconButton(
                 onPressed: () {
-                  switchPage(context, CreateTaskPage());
+                  switchPage(context, const CreateTaskPage());
                 },
                 icon: Icon(Icons.add_box, size: 30, color: mainTheme.primaryColor),
               ),
