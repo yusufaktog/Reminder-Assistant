@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../builders.dart';
 import '../constants.dart';
@@ -24,11 +26,15 @@ class CreateTaskPage extends StatefulWidget {
 }
 
 class _CreateTaskPageState extends State<CreateTaskPage> {
+  final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
+  final List<String> _repetitionItems = <String>["No Repetition", "Daily", "Weekly", "Monthly"];
+
   var _title = "";
   var _description = "";
   var _priority = "";
-  final List<String> _items = <String>['Minor', 'Medium', 'Major', 'Critical'];
-  var _dropDownValue = 'Minor';
+  var _repetition = "";
+  var _cancelled = false;
+  var _time = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: CustomUnderlinedTextField(
-                    style: const TextStyle(color: Colors.black, fontSize: 20),
+                    style: mainTheme.textTheme.headline3!,
                     onChanged: (value) {
                       _title = value;
                     },
@@ -57,34 +63,119 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: CustomUnderlinedTextField(
-                    style: const TextStyle(color: Colors.black, fontSize: 20),
-                    onChanged: (value) {
+                    style: mainTheme.textTheme.headline3!,
+                    onChanged: (dynamic value) {
                       _description = value;
                     },
                     labelText: "Description",
                   ),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(left: 38.0),
-                alignment: AlignmentGeometry.lerp(Alignment.center, AlignmentDirectional.centerStart, 1.0),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-                  child: CustomDropDownMenu(
-                    onChanged: (value) {
-                      _priority = value;
-                      setState(() {
-                        _dropDownValue = _priority;
-                        _items.remove(_dropDownValue);
-                        _items.insert(0, _dropDownValue);
-                      });
-                    },
-                    items: _items,
-                    textStyle: const TextStyle(color: Colors.black, fontSize: 20),
-                    dropDownValue: _dropDownValue,
+              Row(
+                children: [
+                  const SizedBox(width: 38),
+                  Text(
+                    "Priority",
+                    style: mainTheme.textTheme.headline3,
                   ),
-                ),
-              )
+                  const SizedBox(width: 120),
+                  Container(
+                    alignment: AlignmentGeometry.lerp(Alignment.center, AlignmentDirectional.center, 1.0),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: CustomDropDownMenu(
+                      onChanged: (value) {
+                        _priority = value;
+                        setState(() {
+                          _priorityItems.remove(value);
+                          _priorityItems.insert(0, value);
+                        });
+                      },
+                      items: _priorityItems,
+                      dropDownValue: _priorityItems.first,
+                      itemTextStyle: mainTheme.textTheme.headline5,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const SizedBox(width: 38),
+                  Text("Time", style: mainTheme.textTheme.headline3),
+                  const SizedBox(width: 0),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 110),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: CustomTextButton(
+                        text: "Open Time Picker",
+                        textStyle: mainTheme.textTheme.headline4,
+                        onPressed: () {
+                          DatePicker.showDateTimePicker(
+                            context,
+                            currentTime: DateTime.now(),
+                            maxTime: DateTime.now().add(const Duration(days: 365)),
+                            minTime: DateTime.now(),
+                            onCancel: () {
+                              _cancelled = true;
+                            },
+                            onChanged: (DateTime? time) {},
+                            onConfirm: (DateTime? time) {
+                              _time = time!;
+                              _cancelled = false;
+                            },
+                            showTitleActions: true,
+                            theme: datePickerTheme,
+                          );
+                        }),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const SizedBox(width: 38),
+                  Text("Repetition", style: mainTheme.textTheme.headline3),
+                  const SizedBox(width: 80),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: CustomDropDownMenu(
+                      onChanged: (dynamic value) {
+                        _repetition = value!;
+                        setState(() {
+                          _repetitionItems.remove(value);
+                          _repetitionItems.insert(0, value);
+                        });
+                      },
+                      dropDownValue: _repetitionItems.first,
+                      items: _repetitionItems,
+                      dropDownColor: Colors.white,
+                      itemTextStyle: mainTheme.textTheme.headline5,
+                      onTap: () async {
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MultiSelect(items: _priorityItems);
+                            });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              CustomCard(
+                  backGroundColor: mainTheme.primaryColor,
+                  verticalMargin: 50,
+                  horizontalMargin: 180,
+                  padding: const EdgeInsets.all(12.0),
+                  child: CustomTextButton(
+                    onPressed: () {
+                      if (_cancelled) {
+                        Fluttertoast.showToast(
+                            msg: "Please Choose Time...", fontSize: 25, timeInSecForIosWeb: 3, textColor: Colors.black, webPosition: "center");
+                        return;
+                      }
+                    },
+                    textStyle: mainTheme.textTheme.headline2,
+                    text: "CREATE",
+                  ),
+                  borderRadius: 25),
             ],
           ),
         ),

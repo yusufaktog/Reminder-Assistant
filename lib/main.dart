@@ -63,7 +63,7 @@ class _RemainderAppState extends State<RemainderApp> {
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 20),
                   child: Center(
-                    child: Text("Reminder\nAsisstant\nApp",
+                    child: Text("Reminder\nAssistant\nApp",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.getFont(
                           "Dancing Script",

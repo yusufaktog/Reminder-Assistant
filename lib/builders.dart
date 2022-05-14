@@ -143,52 +143,127 @@ class CustomUnderlinedTextField extends StatelessWidget {
 }
 //
 
-class CustomDropDownMenu extends StatelessWidget {
+class CustomDropDownMenu extends StatefulWidget {
   final Function onChanged;
   final List<dynamic> items;
   final Icon? icon;
-  final TextStyle textStyle;
+  final TextStyle? itemTextStyle;
   final int? elevation;
   final Color? dropDownColor;
+  final Function? onTap;
+
   final dynamic dropDownValue;
 
-  const CustomDropDownMenu({
-    Key? key,
-    required this.onChanged,
-    required this.items,
-    required this.textStyle,
-    required this.dropDownValue,
-    this.dropDownColor,
-    this.icon,
-    this.elevation,
-  }) : super(key: key);
+  const CustomDropDownMenu(
+      {Key? key,
+      required this.onChanged,
+      required this.items,
+      required this.dropDownValue,
+      this.dropDownColor,
+      this.icon,
+      this.elevation,
+      this.itemTextStyle,
+      this.onTap})
+      : super(key: key);
 
+  @override
+  State<CustomDropDownMenu> createState() => _CustomDropDownMenuState();
+}
+
+class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<dynamic>(
-      value: dropDownValue,
-      icon: icon ??
+      value: widget.dropDownValue,
+      icon: widget.icon ??
           Icon(
             Icons.arrow_drop_down_sharp,
             color: mainTheme.primaryColor,
             size: 36,
           ),
-      elevation: elevation ?? 1,
-      style: textStyle,
+      elevation: widget.elevation ?? 1,
       underline: Container(
         height: 2,
         color: Colors.deepPurpleAccent,
       ),
-      dropdownColor: dropDownColor ?? Colors.white,
+      dropdownColor: widget.dropDownColor ?? Colors.white,
       onChanged: (value) {
-        onChanged(value);
+        widget.onChanged(value);
       },
-      items: items.map<DropdownMenuItem<dynamic>>((dynamic value) {
+      items: widget.items.map<DropdownMenuItem<dynamic>>((dynamic value) {
         return DropdownMenuItem<dynamic>(
           value: value,
-          child: Text(value),
+          child: Text(value, style: mainTheme.textTheme.headline5),
+          onTap: () {
+            if (widget.onTap != null) {
+              widget.onTap!();
+            }
+          },
         );
       }).toList(),
+    );
+  }
+}
+
+class MultiSelect extends StatefulWidget {
+  final List<String> items;
+  const MultiSelect({Key? key, required this.items}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _MultiSelectState();
+}
+
+class _MultiSelectState extends State<MultiSelect> {
+  // this variable holds the selected items
+  final List<String> _selectedItems = [];
+
+// This function is triggered when a checkbox is checked or unchecked
+  void _itemChange(String itemValue, bool isSelected) {
+    setState(() {
+      if (isSelected) {
+        _selectedItems.add(itemValue);
+      } else {
+        _selectedItems.remove(itemValue);
+      }
+    });
+  }
+
+  // this function is called when the Cancel button is pressed
+  void _cancel() {
+    Navigator.pop(context);
+  }
+
+// this function is called when the Submit button is tapped
+  void _submit() {
+    Navigator.pop(context, _selectedItems);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select Topics'),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: widget.items
+              .map((item) => CheckboxListTile(
+                    value: _selectedItems.contains(item),
+                    title: Text(item),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    onChanged: (isChecked) => _itemChange(item, isChecked!),
+                  ))
+              .toList(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: _cancel,
+        ),
+        ElevatedButton(
+          child: const Text('Submit'),
+          onPressed: _submit,
+        ),
+      ],
     );
   }
 }

@@ -81,17 +81,22 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
           ),
         ),
         bottomNavigationBar: Container(
-          height: 60,
+          height: 75,
           color: mainTheme.backgroundColor,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               IconButton(
                 onPressed: () {
                   switchPage(context, CreateTaskPage());
                 },
-                icon: Icon(Icons.add_box, size: 35, color: mainTheme.primaryColor),
+                icon: Icon(Icons.add_box, size: 30, color: mainTheme.primaryColor),
               ),
-              const Text("Add Task")
+              Text(
+                "Add Task",
+                style: mainTheme.textTheme.headline6,
+              )
             ],
           ),
         ),
