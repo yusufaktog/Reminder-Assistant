@@ -196,7 +196,7 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
           child: Text(value, style: mainTheme.textTheme.headline5),
           onTap: () {
             if (widget.onTap != null) {
-              widget.onTap!();
+              widget.onTap!(value);
             }
           },
         );
@@ -228,9 +228,6 @@ class MultiSelect extends StatefulWidget {
 }
 
 class _MultiSelectState extends State<MultiSelect> {
-  // this variable holds the selected items
-
-// This function is triggered when a checkbox is checked or unchecked
   void _itemChange(dynamic itemValue, bool isSelected) {
     setState(() {
       if (!widget.allowMultipleSelection) {
@@ -247,17 +244,19 @@ class _MultiSelectState extends State<MultiSelect> {
     });
   }
 
-  // this function is called when the Cancel button is pressed
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       alignment: Alignment.center,
-      title: _createTitle(),
+      title: Text(
+        _createTitle(),
+        style: mainTheme.textTheme.headline2,
+      ),
       content: SingleChildScrollView(
         child: ListBody(
           children: widget.items
               .map((item) => CheckboxListTile(
+                    activeColor: mainTheme.primaryColor,
                     selectedTileColor: mainTheme.primaryColor,
                     value: widget.selectedItems.contains(item),
                     title: Text(item.toString(), style: mainTheme.textTheme.bodyText1),
@@ -268,38 +267,42 @@ class _MultiSelectState extends State<MultiSelect> {
         ),
       ),
       actions: [
-        ElevatedButton(
-          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.white), alignment: Alignment.centerLeft),
-          child: Text('Cancel', style: mainTheme.textTheme.bodyText1),
-          onPressed: () {
-            widget.onCancel();
-          },
-        ),
-        SizedBox(width: 70),
-        ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.white),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.white), alignment: Alignment.centerLeft),
+              child: Text('Cancel', style: mainTheme.textTheme.bodyText1),
+              onPressed: () {
+                widget.onCancel();
+              },
             ),
-            child: Text('Submit', style: mainTheme.textTheme.bodyText1),
-            onPressed: () {
-              widget.onSubmit();
-            }),
+            ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.white),
+                ),
+                child: Text('Submit', style: mainTheme.textTheme.bodyText1),
+                onPressed: () {
+                  widget.onSubmit();
+                }),
+          ],
+        )
       ],
     );
   }
 
-  Widget _createTitle() {
+  String _createTitle() {
     switch (widget.title) {
       case "Weekly":
-        return Text("Select The days to repeat");
+        return "Select The days to repeat";
       case "Hourly":
-        return Text("Repeat per hours");
+        return "Repeat per hours";
       case "Monthly":
-        return Text("Select The months to repeat");
+        return "Select The months to repeat";
       case "Yearly":
-        return Text("Repeat per years");
+        return "Repeat per years";
       default:
-        return Text("Select The days to repeat");
+        return "Select The days to repeat";
     }
   }
 }

@@ -26,6 +26,12 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          elevation: 2.0,
+          backgroundColor: mainTheme.primaryColor,
+          title: Text("Active Tasks", style: mainTheme.textTheme.headline2),
+          centerTitle: true,
+        ),
         backgroundColor: mainTheme.backgroundColor,
         body: SingleChildScrollView(
           child: Column(
@@ -70,8 +76,8 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
               TextButton(
                   onPressed: () {
                     TaskService _taskService = TaskService();
-                    _taskService
-                        .createTask(Task(title: "title", description: "Test Descr", time: Timestamp.fromDate(DateTime.now()), priority: "Minor"));
+                    _taskService.createTask(
+                        Task(title: "title", description: "Test Description", time: DateTime.now().toString().split('.')[0], priority: "Critical"));
                   },
                   child: Text(
                     widget.person.name,
@@ -87,15 +93,15 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Text(
+                "Add Task",
+                style: mainTheme.textTheme.headline6,
+              ),
               IconButton(
                 onPressed: () {
                   switchPage(context, const CreateTaskPage());
                 },
                 icon: Icon(Icons.add_box, size: 30, color: mainTheme.primaryColor),
-              ),
-              Text(
-                "Add Task",
-                style: mainTheme.textTheme.headline6,
               )
             ],
           ),

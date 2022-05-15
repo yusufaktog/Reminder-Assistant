@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -22,23 +21,34 @@ class _TaskCardState extends State<TaskCard> {
     return Card(
       color: adjustCardPriorityColor(widget.task.priority),
       child: SizedBox(
-        height: 120,
+        height: 150,
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 6.0),
+              padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 6.0),
               child: Row(
                 children: [
-                  Expanded(flex: 4, child: Text(widget.task.description)),
                   Expanded(
-                    flex: 1,
-                    child: Text(
-                      adjustTimeStr(widget.task.time),
-                      textAlign: TextAlign.center,
+                      flex: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: Text(widget.task.description),
+                      )),
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        widget.task.time,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ],
               ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             Text(widget.task.description)
           ],
@@ -47,24 +57,12 @@ class _TaskCardState extends State<TaskCard> {
     );
   }
 
-  String adjustTimeStr(Timestamp time) {
-    DateTime dateTime = time.toDate();
-
-    return adjustDigitPrecision(dateTime.day) +
-        "/" +
-        adjustDigitPrecision(dateTime.month) +
-        " - " +
-        adjustDigitPrecision(dateTime.hour) +
-        ":" +
-        adjustDigitPrecision(dateTime.minute);
-  }
-
   Color adjustCardPriorityColor(String priority) {
     switch (priority) {
       case "Minor":
         return Colors.grey;
       case "Medium":
-        return Colors.green;
+        return Colors.lightGreen;
       case "Major":
         return Colors.yellow;
       case "Critical":

@@ -30,9 +30,9 @@ final ThemeData mainTheme = ThemeData(
   fontFamily: 'Georgia',
   textTheme: const TextTheme(
     headline1: TextStyle(
+      color: Colors.black,
       fontSize: 36.0,
       fontWeight: FontWeight.bold,
-      color: Colors.black,
     ),
     headline2: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
     headline3: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.normal),
@@ -53,3 +53,6 @@ const DatePickerTheme datePickerTheme = DatePickerTheme(
     cancelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
     itemStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
     doneStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18));
+
+const String repetitionError = "Please set a repetition option";
+const String timeError = "Please set a start time";

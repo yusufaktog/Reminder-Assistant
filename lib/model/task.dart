@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:reminder_app/model/notification.dart';
 
 class Task {
   final String title;
   final String description;
-  final Timestamp time;
+  final String time;
   final String priority;
   final Notification? notification;
 

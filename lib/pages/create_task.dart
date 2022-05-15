@@ -36,6 +36,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var _repetition = "";
   var _cancelled = false;
   var _time = DateTime.now();
+  var _initialTimeText = "Open Time Picker";
+
+  List<String> _errors = [];
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +107,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   Text("Time", style: mainTheme.textTheme.headline3),
                   const SizedBox(width: 0),
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 110),
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(horizontal: 100),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomTextButton(
-                        text: "Open Time Picker",
+                        text: _initialTimeText,
                         textStyle: mainTheme.textTheme.headline4,
                         onPressed: () {
                           DatePicker.showDateTimePicker(
@@ -116,12 +120,16 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                             maxTime: DateTime.now().add(const Duration(days: 365)),
                             minTime: DateTime.now(),
                             onCancel: () {
-                              _cancelled = true;
+                              _errors.add(timeError);
                             },
                             onChanged: (DateTime? time) {},
                             onConfirm: (DateTime? time) {
                               _time = time!;
-                              _cancelled = false;
+
+                              _errors.remove(timeError);
+                              setState(() {
+                                _initialTimeText = _time.toString().split('.')[0];
+                              });
                             },
                             showTitleActions: true,
                             theme: datePickerTheme,
@@ -144,6 +152,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                           _repetitionItems.remove(value);
                           _repetitionItems.insert(0, value);
                         });
+                        if (_repetition == "No Repetition") {
+                          return;
+                        }
                         await showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -151,15 +162,13 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                                 items: _getSelectedItemList(value),
                                 allowMultipleSelection: _checkMultipleSelection(value),
                                 onSubmit: () {
-                                  _selectedPriorityItems.add(value);
-                                  //Navigator.pop(context, _selectedPriorityItems);
-                                  _selectedPriorityItems.forEach((element) {
-                                    print(element);
-                                  });
+                                  Navigator.pop(context);
+                                  _errors.remove(repetitionError);
                                 },
                                 onCancel: () {
                                   Navigator.pop(context);
                                   _selectedPriorityItems.clear();
+                                  _errors.add(repetitionError);
                                 },
                                 selectedItems: _selectedPriorityItems,
                                 title: value,
@@ -170,7 +179,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       items: _repetitionItems,
                       dropDownColor: Colors.white,
                       itemTextStyle: mainTheme.textTheme.headline5,
-                      onTap: () {},
+                      onTap: (value) {
+                        _repetition = value;
+                        if (_repetition == "No Repetition") {
+                          _errors.remove(repetitionError);
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -182,11 +196,13 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   padding: const EdgeInsets.all(12.0),
                   child: CustomTextButton(
                     onPressed: () {
-                      if (_cancelled) {
-                        Fluttertoast.showToast(
-                            msg: "Please Choose Time...", fontSize: 25, timeInSecForIosWeb: 3, textColor: Colors.black, webPosition: "center");
+                      if (_errors.isNotEmpty) {
+                        for (var error in _errors) {
+                          Fluttertoast.showToast(msg: error, fontSize: 25, timeInSecForIosWeb: 3, textColor: Colors.black, webPosition: "center");
+                        }
                         return;
                       }
+                      print("succeed");
                     },
                     textStyle: mainTheme.textTheme.headline2,
                     text: "CREATE",
