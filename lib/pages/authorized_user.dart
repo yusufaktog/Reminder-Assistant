@@ -1,19 +1,19 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:reminder_app/builders.dart';
 import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/model/task.dart';
 import 'package:reminder_app/pages/task_card.dart';
-import 'package:reminder_app/service/task.dart';
 
-import '../model/person.dart';
+import '../model/person.dart' as models;
 import 'create_task.dart';
 import 'detailed_task_page.dart';
 
 class AuthorizedPersonPage extends StatefulWidget {
-  final Person person;
+  final models.Person person;
 
   const AuthorizedPersonPage({Key? key, required this.person}) : super(key: key);
 
@@ -73,22 +73,11 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                             child: CircularProgressIndicator(),
                           );
                   }),
-              TextButton(
-                  onPressed: () {
-                    TaskService _taskService = TaskService();
-                    _taskService.createTask(
-                        Task(title: "title", description: "Test Description", time: DateTime.now().toString().split('.')[0], priority: "Critical"));
-                  },
-                  child: Text(
-                    widget.person.name,
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
-                  ))
             ],
           ),
         ),
-        bottomNavigationBar: Container(
-          height: 75,
-          color: mainTheme.backgroundColor,
+        bottomNavigationBar: FittedBox(
+          fit: BoxFit.scaleDown,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,5 +97,63 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
         ),
       ),
     );
+  }
+
+  Future<void> loadFCM() async {
+    if (!kIsWeb) {
+      channel = const AndroidNotificationChannel(
+          'high_importance_channel', // id
+          'High Importance Notifications', // title
+          importance: Importance.high,
+          enableVibration: true);
+
+      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+  }
+
+  void getToken() async {
+    await FirebaseMessaging.instance.getToken().then((value) => print(value));
+  }
+
+  void listenFCM() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null && !kIsWeb) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              icon: 'launch_background',
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  late AndroidNotificationChannel channel;
+
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  @override
+  void initState() {
+    loadFCM();
+    listenFCM();
+    getToken();
   }
 }

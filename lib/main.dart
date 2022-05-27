@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,13 +16,21 @@ import 'model/person.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: options);
+  await Firebase.initializeApp();
 
   runApp(MaterialApp(
     home: const RemainderApp(),
     debugShowCheckedModeBanner: false,
     theme: mainTheme,
   ));
+  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    // If you're going to use other Firebase services in the background, such as Firestore,
+    // make sure you call `initializeApp` before using other Firebase services.
+    await Firebase.initializeApp();
+    print('Handling a background message ${message.messageId}');
+  }
+
+  FirebaseMessaging.onBackgroundMessage((message) => _firebaseMessagingBackgroundHandler(message));
 }
 
 class RemainderApp extends StatefulWidget {
@@ -58,7 +67,7 @@ class _RemainderAppState extends State<RemainderApp> {
                   padding: const EdgeInsets.only(bottom: 40.0, top: 40),
                   child: Text("WELCOME",
                       style: GoogleFonts.getFont("Dancing Script",
-                          fontWeight: FontWeight.bold, fontSize: 60, letterSpacing: 15, color: mainTheme.primaryColor)),
+                          fontWeight: FontWeight.bold, fontSize: 50, letterSpacing: 15, color: mainTheme.primaryColor)),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 20),
@@ -162,9 +171,9 @@ class _RemainderAppState extends State<RemainderApp> {
                 CustomCard(
                   backGroundColor: Colors.deepPurple,
                   borderRadius: 20.0,
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(8.0),
                   verticalMargin: 25.0,
-                  horizontalMargin: 100.0,
+                  horizontalMargin: 120.0,
                   child: CustomTextButton(
                     text: _hasAccount ? "Login" : " Sign Up",
                     textStyle: const TextStyle(color: Colors.white, fontSize: 25),
@@ -229,10 +238,11 @@ class _RemainderAppState extends State<RemainderApp> {
                   padding: const EdgeInsets.all(8.0),
                   backGroundColor: mainTheme.backgroundColor,
                   borderRadius: 10.0,
-                  horizontalMargin: 200.0,
+                  horizontalMargin: 100.0,
                   verticalMargin: 10.0,
                   child: CustomTextButton(
                     text: "TEST",
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.deepPurple),
                     onPressed: () {
                       _authService.signIn("yusufaktok@gmail.com", "yusuf123").then((value) => switchPage(
                           context,
