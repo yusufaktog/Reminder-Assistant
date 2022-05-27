@@ -1,4 +1,4 @@
-# remainder_app
+# reminder_app
 
 Multi-Purpose Remainder App
 
