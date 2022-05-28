@@ -8,11 +8,7 @@ class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> createTask(Task task) async {
-    await _firestore
-        .collection("People")
-        .doc(_auth.currentUser!.uid)
-        .collection("Tasks")
-        .doc()
-        .set({'title': task.title, 'description': task.description, 'time': task.time, 'priority': task.priority});
+    await _firestore.collection("People").doc(_auth.currentUser!.uid).collection("Tasks").doc().set(
+        {'title': task.title, 'description': task.description, 'time': task.time, 'priority': task.priority, 'notificationId': task.notificationId});
   }
 }

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const FirebaseOptions options = FirebaseOptions(
     apiKey: "AIzaSyBQGsZZA1_Ffkdqz6PPsDh08VAtVdggQxY",
@@ -56,3 +57,13 @@ const DatePickerTheme datePickerTheme = DatePickerTheme(
 
 const String repetitionError = "Please set a repetition option";
 const String timeError = "Please set a start time";
+
+const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+
+const InitializationSettings initializationSettings = InitializationSettings(
+  android: initializationSettingsAndroid,
+);
+
+createRandomNotificationId() {
+  return DateTime.now().microsecondsSinceEpoch;
+}

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:reminder_app/service/notification.dart';
 
 import '../model/task.dart';
 
@@ -16,6 +17,8 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
+  final NotificationService _notificationService = NotificationService();
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -50,7 +53,13 @@ class _TaskCardState extends State<TaskCard> {
             SizedBox(
               height: 20,
             ),
-            Text(widget.task.description)
+            Text(widget.task.description),
+            TextButton(
+              child: Text("Cancel Notification"),
+              onPressed: () {
+                _notificationService.cancelNotificationById(widget.task.notificationId);
+              },
+            )
           ],
         ),
       ),

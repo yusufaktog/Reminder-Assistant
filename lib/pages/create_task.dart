@@ -3,9 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:reminder_app/service/notification.dart';
+import 'package:reminder_app/service/task.dart';
 
 import '../builders.dart';
 import '../constants.dart';
+import '../model/task.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,11 +37,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var _description = "";
   var _priority = "";
   var _repetition = "";
-  var _cancelled = false;
   var _time = DateTime.now();
   var _initialTimeText = "Open Time Picker";
 
-  List<String> _errors = [];
+  final List<String> _errors = [];
+  final TaskService _taskService = TaskService();
+  final NotificationService _notificationService = NotificationService();
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +80,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 38),
                   Text(
                     "Priority",
                     style: mainTheme.textTheme.headline3,
                   ),
-                  const SizedBox(width: 120),
+                  const SizedBox(width: 130),
                   Container(
-                    alignment: AlignmentGeometry.lerp(Alignment.center, AlignmentDirectional.center, 1.0),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
                       onChanged: (value) {
@@ -102,13 +105,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ],
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 38),
                   Text("Time", style: mainTheme.textTheme.headline3),
-                  const SizedBox(width: 0),
+                  const SizedBox(width: 70),
                   Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(horizontal: 100),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomTextButton(
                         text: _initialTimeText,
@@ -139,10 +140,10 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 ],
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 38),
                   Text("Repetition", style: mainTheme.textTheme.headline3),
-                  const SizedBox(width: 80),
+                  const SizedBox(width: 50),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
@@ -191,18 +192,30 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               ),
               CustomCard(
                   backGroundColor: mainTheme.primaryColor,
-                  verticalMargin: 50,
-                  horizontalMargin: 180,
-                  padding: const EdgeInsets.all(12.0),
+                  verticalMargin: 30,
+                  horizontalMargin: 130,
+                  padding: const EdgeInsets.all(8.0),
                   child: CustomTextButton(
                     onPressed: () {
                       if (_errors.isNotEmpty) {
                         for (var error in _errors) {
-                          Fluttertoast.showToast(msg: error, fontSize: 25, timeInSecForIosWeb: 3, textColor: Colors.black, webPosition: "center");
+                          Fluttertoast.showToast(
+                              msg: error,
+                              backgroundColor: mainTheme.backgroundColor,
+                              fontSize: 20,
+                              timeInSecForIosWeb: 3,
+                              textColor: Colors.black,
+                              webPosition: "center");
                         }
                         return;
                       }
-                      print("succeed");
+
+                      _taskService.createTask(Task(
+                          priority: _priority,
+                          description: _description,
+                          notificationId: createRandomNotificationId(),
+                          time: _time.toString().split('.')[0],
+                          title: _title));
                     },
                     textStyle: mainTheme.textTheme.headline2,
                     text: "CREATE",

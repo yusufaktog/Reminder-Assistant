@@ -2,45 +2,54 @@ import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reminder_app/pages/authorized_user.dart';
 import 'package:reminder_app/service/auth.dart';
+import 'package:reminder_app/service/notification.dart';
 import 'package:reminder_app/service/person.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'builders.dart';
 import 'constants.dart';
-import 'model/person.dart';
+import 'model/notification.dart';
+import 'model/person.dart' as models;
+
+String? selectedNotificationPayload;
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject = BehaviorSubject<ReceivedNotification>();
+final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
+  NotificationService().configureLocalTimeZone();
   runApp(MaterialApp(
-    home: const RemainderApp(),
+    home: const ReminderApp(),
     debugShowCheckedModeBanner: false,
     theme: mainTheme,
   ));
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    // If you're going to use other Firebase services in the background, such as Firestore,
-    // make sure you call `initializeApp` before using other Firebase services.
-    await Firebase.initializeApp();
-    print('Handling a background message ${message.messageId}');
-  }
 
-  FirebaseMessaging.onBackgroundMessage((message) => _firebaseMessagingBackgroundHandler(message));
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: (String? payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+    selectedNotificationPayload = payload;
+    selectNotificationSubject.add(payload);
+  });
 }
 
-class RemainderApp extends StatefulWidget {
-  const RemainderApp({Key? key}) : super(key: key);
+class ReminderApp extends StatefulWidget {
+  const ReminderApp({Key? key}) : super(key: key);
 
   @override
-  _RemainderAppState createState() => _RemainderAppState();
+  _ReminderAppState createState() => _ReminderAppState();
 }
 
-class _RemainderAppState extends State<RemainderApp> {
+class _ReminderAppState extends State<ReminderApp> {
   final AuthService _authService = AuthService();
   final PersonService _personService = PersonService();
 
@@ -197,15 +206,15 @@ class _RemainderAppState extends State<RemainderApp> {
                       }
 
                       if (!_hasAccount) {
-                        await _personService.createPerson(Person(name: _name, email: _email), _password).catchError((e) {
+                        await _personService.createPerson(models.Person(name: _name, email: _email), _password).catchError((e) {
                           Fluttertoast.showToast(msg: e.toString().split("]")[1], webShowClose: true, webPosition: "center", timeInSecForIosWeb: 3);
                           _authSuccess = false;
                         });
                       }
 
                       if (_authSuccess) {
-                        switchPage(
-                            context, AuthorizedPersonPage(person: Person(id: FirebaseAuth.instance.currentUser!.uid, name: _name, email: _email)));
+                        switchPage(context,
+                            AuthorizedPersonPage(person: models.Person(id: FirebaseAuth.instance.currentUser!.uid, name: _name, email: _email)));
                       }
                     },
                   ),
@@ -247,7 +256,8 @@ class _RemainderAppState extends State<RemainderApp> {
                       _authService.signIn("yusufaktok@gmail.com", "yusuf123").then((value) => switchPage(
                           context,
                           AuthorizedPersonPage(
-                              person: Person(id: FirebaseAuth.instance.currentUser!.uid, name: "Yusuf Aktoğ", email: "yusufaktok@gmail.com"))));
+                              person:
+                                  models.Person(id: FirebaseAuth.instance.currentUser!.uid, name: "Yusuf Aktoğ", email: "yusufaktok@gmail.com"))));
                     },
                   ),
                 )

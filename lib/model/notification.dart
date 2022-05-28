@@ -1,7 +1,15 @@
-class Notification {
-  final String? id;
-  final int timeToRepeat;
-  final int numberOfRepetitions;
+class ReceivedNotification {
+  ReceivedNotification({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.payload,
+  });
 
-  Notification(this.id, this.timeToRepeat, this.numberOfRepetitions);
+  final int id;
+  final String? title;
+  final String? body;
+  final String? payload;
 }
+
+enum RepetitionType { daily, weekly, monthly, yearly }

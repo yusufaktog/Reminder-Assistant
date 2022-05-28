@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:reminder_app/builders.dart';
 import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/model/task.dart';
 import 'package:reminder_app/pages/task_card.dart';
+import 'package:reminder_app/service/notification.dart';
 
 import '../model/person.dart' as models;
 import 'create_task.dart';
@@ -22,6 +21,11 @@ class AuthorizedPersonPage extends StatefulWidget {
 }
 
 class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
+  late AndroidNotificationChannel channel;
+
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  final NotificationService _notificationService = NotificationService();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -60,10 +64,12 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                                     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                                     child: TaskCard(
                                       task: Task(
-                                          title: tasks[index]["title"],
-                                          description: tasks[index]["description"],
-                                          time: tasks[index]["time"],
-                                          priority: tasks[index]["priority"]),
+                                        title: tasks[index]["title"],
+                                        description: tasks[index]["description"],
+                                        time: tasks[index]["time"],
+                                        priority: tasks[index]["priority"],
+                                        notificationId: tasks[index]["notificationId"],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -91,7 +97,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                   switchPage(context, const CreateTaskPage());
                 },
                 icon: Icon(Icons.add_box, size: 30, color: mainTheme.primaryColor),
-              )
+              ),
             ],
           ),
         ),
@@ -99,61 +105,12 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
     );
   }
 
-  Future<void> loadFCM() async {
-    if (!kIsWeb) {
-      channel = const AndroidNotificationChannel(
-          'high_importance_channel', // id
-          'High Importance Notifications', // title
-          importance: Importance.high,
-          enableVibration: true);
-
-      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
-
-      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    }
-  }
-
-  void getToken() async {
-    await FirebaseMessaging.instance.getToken().then((value) => print(value));
-  }
-
-  void listenFCM() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null && !kIsWeb) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              icon: 'launch_background',
-            ),
-          ),
-        );
-      }
-    });
-  }
-
-  late AndroidNotificationChannel channel;
-
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
   @override
   void initState() {
-    loadFCM();
-    listenFCM();
-    getToken();
+    super.initState();
+    _notificationService.configureDidReceiveLocalNotificationSubject(context);
+    _notificationService.configureSelectNotificationSubject(context, widget.person);
+    //_notificationService.createCustomScheduledNotification("title", "body", DateTime.now().add(const Duration(seconds: 15)), RepetitionType.daily);
+    _notificationService.createScheduledNotificationWithInterval("title", "body", createRandomNotificationId(), RepeatInterval.everyMinute);
   }
 }
