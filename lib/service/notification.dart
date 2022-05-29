@@ -73,12 +73,23 @@ class NotificationService {
     });
   }
 
-  Future<void> createScheduledNotificationWithInterval(String title, String body, int notificationId, RepeatInterval repeatInterval) async {
+  Future<void> createScheduledNotificationWithRepeatInterval(String title, String body, int notificationId, RepeatInterval repeatInterval) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails('repeating channel id', 'repeating channel name',
         channelDescription: 'repeating description', enableVibration: true, importance: Importance.max, priority: Priority.max);
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.periodicallyShow(notificationId, title, body, repeatInterval, platformChannelSpecifics,
         androidAllowWhileIdle: true);
+  }
+
+  Future<void> createScheduledNotificationWithNoRepetition(String title, String body, int notificationId, DateTime scheduleDate) async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        notificationId,
+        title,
+        body,
+        tz.TZDateTime.from(scheduleDate, tz.getLocation("Europe/Istanbul")),
+        const NotificationDetails(android: AndroidNotificationDetails('channel id', 'channel name', channelDescription: 'channel description')),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
   }
 
   Future<void> createCustomScheduledNotification(
@@ -99,7 +110,7 @@ class NotificationService {
 
   tz.TZDateTime createScheduledDate(DateTime dateTime) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime.from(dateTime, tz.getLocation("Europe/Izmir"));
+    tz.TZDateTime scheduledDate = tz.TZDateTime.from(dateTime, tz.getLocation("Europe/Istanbul"));
 
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));

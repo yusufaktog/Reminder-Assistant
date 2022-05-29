@@ -57,6 +57,7 @@ class CustomTextField extends StatelessWidget {
     return TextFormField(
       key: key,
       obscureText: isObscureText ?? false,
+      obscuringCharacter: '*',
       onChanged: (value) {
         onChanged!(value);
       },
@@ -175,6 +176,8 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
   Widget build(BuildContext context) {
     return DropdownButton<dynamic>(
       value: widget.dropDownValue,
+      underline: Container(),
+      style: mainTheme.textTheme.headline2,
       icon: widget.icon ??
           Icon(
             Icons.arrow_drop_down_sharp,
@@ -182,10 +185,6 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
             size: 36,
           ),
       elevation: widget.elevation ?? 1,
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
       dropdownColor: widget.dropDownColor ?? Colors.white,
       onChanged: (value) {
         widget.onChanged(value);
@@ -193,7 +192,7 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
       items: widget.items.map<DropdownMenuItem<dynamic>>((dynamic value) {
         return DropdownMenuItem<dynamic>(
           value: value,
-          child: Text(value, style: mainTheme.textTheme.headline5),
+          child: Text(value, style: widget.itemTextStyle),
           onTap: () {
             if (widget.onTap != null) {
               widget.onTap!(value);

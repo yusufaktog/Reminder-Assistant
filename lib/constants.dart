@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'model/notification.dart';
 
 const FirebaseOptions options = FirebaseOptions(
     apiKey: "AIzaSyBQGsZZA1_Ffkdqz6PPsDh08VAtVdggQxY",
@@ -57,6 +60,8 @@ const DatePickerTheme datePickerTheme = DatePickerTheme(
 
 const String repetitionError = "Please set a repetition option";
 const String timeError = "Please set a start time";
+const String titleError = "Field 'Title' cant be empty";
+const String descriptionError = "Field 'description' cant be empty";
 
 const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
 
@@ -66,4 +71,70 @@ const InitializationSettings initializationSettings = InitializationSettings(
 
 createRandomNotificationId() {
   return DateTime.now().microsecondsSinceEpoch;
+}
+
+showToastMessage(String message, Color textColor, double fontSize) {
+  Fluttertoast.showToast(
+      msg: message,
+      backgroundColor: mainTheme.backgroundColor,
+      fontSize: fontSize,
+      timeInSecForIosWeb: 3,
+      textColor: textColor,
+      webPosition: "center");
+}
+
+RepetitionType convertStringToRepetitionType(String repetition) {
+  switch (repetition) {
+    case "daily":
+      return RepetitionType.daily;
+    case "weekly":
+      return RepetitionType.weekly;
+    case "monthly":
+      return RepetitionType.monthly;
+    case "yearly":
+    default:
+      return RepetitionType.yearly;
+  }
+}
+
+int convertPriorityToInteger(String priority) {
+  switch (priority) {
+    case "Minor":
+      return 1;
+    case "Medium":
+      return 2;
+    case "Major":
+      return 3;
+    case "Critical":
+      return 4;
+    default:
+      return 1;
+  }
+}
+
+String convertPriorityToString(int priority) {
+  switch (priority) {
+    case 1:
+      return "Minor";
+    case 2:
+      return "Medium";
+    case 3:
+      return "Major";
+    case 4:
+      return "Critical";
+    default:
+      return "Minor";
+  }
+}
+
+String convertSelectionToFieldName(selectedSortType) {
+  switch (selectedSortType) {
+    case "By Priority (Desc)":
+    case "By Priority (Asc)":
+      return "priority";
+    case "By Date (Desc)":
+    case "By Date (Asc)":
+    default:
+      return "time";
+  }
 }

@@ -25,7 +25,7 @@ final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<Strin
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: options);
   NotificationService().configureLocalTimeZone();
   runApp(MaterialApp(
     home: const ReminderApp(),

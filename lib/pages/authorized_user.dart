@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:reminder_app/builders.dart';
 import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/model/task.dart';
 import 'package:reminder_app/pages/task_card.dart';
 import 'package:reminder_app/service/notification.dart';
 
+import '../builders.dart';
 import '../model/person.dart' as models;
 import 'create_task.dart';
 import 'detailed_task_page.dart';
@@ -26,22 +26,97 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final NotificationService _notificationService = NotificationService();
 
+  var _selectedItem = "";
+  var _selectedSortFieldName = "time";
+  var _isDescending = false;
+  final List<String> _dropDownMenuItems = List.of({"", "By Priority (Desc)", "By Priority (Asc)", "By Date (Desc)", "By Date (Asc)"});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          elevation: 2.0,
           backgroundColor: mainTheme.primaryColor,
-          title: Text("Active Tasks", style: mainTheme.textTheme.headline2),
-          centerTitle: true,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(30),
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(height: 10),
+                Text("Active Tasks", style: mainTheme.textTheme.headline2),
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerRight,
+                  child: CustomDropDownMenu(
+                    icon: const Icon(
+                      Icons.sort_sharp,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    onChanged: (dynamic value) async {
+                      _selectedItem = value;
+                      setState(() {
+                        _dropDownMenuItems.remove(value);
+                        _dropDownMenuItems.insert(0, value);
+                        _selectedSortFieldName = convertSelectionToFieldName(_selectedItem);
+                        _isDescending = _selectedItem.contains("Desc") ? true : false;
+                      });
+                    },
+                    dropDownValue: "",
+                    items: _dropDownMenuItems,
+                    dropDownColor: Colors.white,
+                    itemTextStyle: mainTheme.textTheme.headline5,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
+
+        /*PreferredSize(
+          preferredSize: const Size.fromHeight(100),
+          child: Row(
+            children: [
+*/ /*              AppBar(
+                elevation: 2.0,
+                backgroundColor: mainTheme.primaryColor,
+                title: Text("Active Tasks", style: mainTheme.textTheme.headline2),
+                centerTitle: true,
+              )*/ /*,
+*/ /*              Container(
+                color: mainTheme.primaryColor,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: CustomDropDownMenu(
+                  icon: const Icon(Icons.sort_sharp, size: 25),
+                  onChanged: (dynamic value) async {
+                    _selectedItem = value;
+                    setState(() {
+                      _dropDownMenuItems.remove(value);
+                      _dropDownMenuItems.insert(0, value);
+                      _selectedSortFieldName = convertSelectionToFieldName(_selectedItem);
+                      _isDescending = _selectedSortFieldName.contains("Descending") ? true : false;
+                    });
+                  },
+                  dropDownValue: _dropDownMenuItems.first,
+                  items: _dropDownMenuItems,
+                  dropDownColor: Colors.white,
+                  itemTextStyle: mainTheme.textTheme.headline5,
+                ),
+              )*/ /*
+            ],
+          ),
+        )*/
         backgroundColor: mainTheme.backgroundColor,
         body: SingleChildScrollView(
           child: Column(
             children: [
               StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection("People").doc(widget.person.id).collection("Tasks").snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection("People")
+                      .doc(widget.person.id)
+                      .collection("Tasks")
+                      .orderBy(_selectedSortFieldName, descending: _isDescending)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     return snapshot.connectionState != ConnectionState.waiting
                         ? ListView.builder(
@@ -67,7 +142,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                                         title: tasks[index]["title"],
                                         description: tasks[index]["description"],
                                         time: tasks[index]["time"],
-                                        priority: tasks[index]["priority"],
+                                        priority: convertPriorityToString(tasks[index]["priority"]),
                                         notificationId: tasks[index]["notificationId"],
                                       ),
                                     ),
@@ -94,7 +169,11 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
               ),
               IconButton(
                 onPressed: () {
-                  switchPage(context, const CreateTaskPage());
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const CreateTaskPage(),
+                    ),
+                  );
                 },
                 icon: Icon(Icons.add_box, size: 30, color: mainTheme.primaryColor),
               ),
@@ -110,7 +189,6 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
     super.initState();
     _notificationService.configureDidReceiveLocalNotificationSubject(context);
     _notificationService.configureSelectNotificationSubject(context, widget.person);
-    //_notificationService.createCustomScheduledNotification("title", "body", DateTime.now().add(const Duration(seconds: 15)), RepetitionType.daily);
-    _notificationService.createScheduledNotificationWithInterval("title", "body", createRandomNotificationId(), RepeatInterval.everyMinute);
+    //_notificationService.cancelAllNotifications();
   }
 }

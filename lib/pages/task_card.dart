@@ -28,19 +28,19 @@ class _TaskCardState extends State<TaskCard> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 6.0),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Row(
                 children: [
                   Expanded(
                       flex: 4,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: Text(widget.task.description),
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(widget.task.title),
                       )),
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 16.0),
                       child: Text(
                         widget.task.time,
                         textAlign: TextAlign.center,
@@ -50,12 +50,16 @@ class _TaskCardState extends State<TaskCard> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 20,
+            SizedBox(height: 15),
+            Text(
+              widget.task.description,
+              maxLines: 2,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
             ),
-            Text(widget.task.description),
             TextButton(
-              child: Text("Cancel Notification"),
+              child: const Text("Cancel Notification"),
               onPressed: () {
                 _notificationService.cancelNotificationById(widget.task.notificationId);
               },
