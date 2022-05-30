@@ -41,7 +41,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
         appBar: AppBar(
           backgroundColor: mainTheme.primaryColor,
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(35),
+            preferredSize: const Size.fromHeight(40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -92,7 +92,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                     dropDownValue: _dropDownMenuItems.first,
                     items: _dropDownMenuItems,
                     dropDownColor: Colors.white,
-                    itemTextStyle: mainTheme.textTheme.headline5,
+                    itemTextStyle: mainTheme.textTheme.bodyText2,
                   ),
                 ),
               ],

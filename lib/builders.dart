@@ -175,9 +175,9 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<dynamic>(
+      alignment: Alignment.centerRight,
       value: widget.dropDownValue,
       underline: Container(),
-      style: mainTheme.textTheme.headline2,
       icon: widget.icon ??
           Icon(
             Icons.arrow_drop_down_sharp,

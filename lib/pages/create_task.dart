@@ -87,7 +87,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     "Priority",
                     style: mainTheme.textTheme.headline5,
                   ),
-                  const SizedBox(width: 130),
+                  const SizedBox(width: 120),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
@@ -150,8 +150,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Repetition", style: mainTheme.textTheme.headline3),
-                  const SizedBox(width: 50),
+                  Text("Repetition", style: mainTheme.textTheme.headline5),
+                  const SizedBox(width: 40),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
@@ -177,7 +177,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   backGroundColor: mainTheme.primaryColor,
                   verticalMargin: 30,
                   horizontalMargin: 130,
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(4.0),
                   child: CustomTextButton(
                     onPressed: () {
                       if (_description.isEmpty) {
@@ -228,7 +228,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     textStyle: mainTheme.textTheme.headline2,
                     text: "CREATE",
                   ),
-                  borderRadius: 25),
+                  borderRadius: 20),
             ],
           ),
         ),
