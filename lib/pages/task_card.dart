@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:reminder_app/service/notification.dart';
+import 'package:reminder_app/constants.dart';
+import 'package:reminder_app/service/task.dart';
 
 import '../model/task.dart';
 
@@ -17,8 +18,7 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
-  final NotificationService _notificationService = NotificationService();
-
+  final TaskService _taskService = TaskService();
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -40,7 +40,7 @@ class _TaskCardState extends State<TaskCard> {
                   Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
+                      padding: const EdgeInsets.only(top: 16.0, left: 20),
                       child: Text(
                         widget.task.time,
                         textAlign: TextAlign.center,
@@ -50,19 +50,54 @@ class _TaskCardState extends State<TaskCard> {
                 ],
               ),
             ),
-            SizedBox(height: 15),
-            Text(
-              widget.task.description,
-              maxLines: 2,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      widget.task.description,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 0.0),
+                      child: ListTile(
+                        horizontalTitleGap: 0,
+                        leading: Icon(
+                          Icons.repeat_outlined,
+                          size: 30,
+                          color: mainTheme.primaryColor,
+                        ),
+                        title: Text(
+                          widget.task.repetition == "No Repetition" ? "None" : widget.task.repetition,
+                          style: const TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ))
+              ],
             ),
-            TextButton(
-              child: const Text("Cancel Notification"),
-              onPressed: () {
-                _notificationService.cancelNotificationById(widget.task.notificationId);
-              },
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      _taskService.deleteTask(widget.task.id!);
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      size: 30,
+                      color: mainTheme.primaryColor,
+                    )),
+              ],
             )
           ],
         ),

@@ -9,12 +9,19 @@ class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> createTask(Task task) async {
-    await _firestore.collection("People").doc(_auth.currentUser!.uid).collection("Tasks").doc().set({
+    var doc = _firestore.collection("People").doc(_auth.currentUser!.uid).collection("Tasks").doc();
+    await doc.set({
+      'id': doc.id,
       'title': task.title,
       'description': task.description,
       'time': task.time,
       'priority': convertPriorityToInteger(task.priority),
-      'notificationId': task.notificationId
+      'notificationId': task.notificationId,
+      'repetition': task.repetition
     });
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    await _firestore.collection("People").doc(_auth.currentUser!.uid).collection("Tasks").doc(taskId).delete();
   }
 }

@@ -37,7 +37,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var _title = "";
   var _description = "";
   var _priority = "";
-  var _repetition = "";
+  var _repetition = "No Repetition";
   var _time = DateTime.now();
   var _initialTimeText = "Open Time Picker";
 
@@ -59,7 +59,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: CustomUnderlinedTextField(
-                    style: mainTheme.textTheme.headline3!,
+                    style: mainTheme.textTheme.headline5!,
                     onChanged: (value) {
                       _title = value;
                     },
@@ -72,7 +72,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: CustomUnderlinedTextField(
-                    style: mainTheme.textTheme.headline3!,
+                    style: mainTheme.textTheme.headline5!,
                     onChanged: (value) {
                       _description = value;
                     },
@@ -85,7 +85,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                 children: [
                   Text(
                     "Priority",
-                    style: mainTheme.textTheme.headline3,
+                    style: mainTheme.textTheme.headline5,
                   ),
                   const SizedBox(width: 130),
                   Container(
@@ -108,13 +108,13 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Time", style: mainTheme.textTheme.headline3),
+                  Text("Time", style: mainTheme.textTheme.headline5),
                   const SizedBox(width: 70),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomTextButton(
                         text: _initialTimeText,
-                        textStyle: mainTheme.textTheme.headline4,
+                        textStyle: mainTheme.textTheme.headline5,
                         onPressed: () {
                           DatePicker.showDateTimePicker(
                             context,
@@ -191,6 +191,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       }
 
                       int _notificationId = createRandomNotificationId();
+                      // fit to 2^32
                       while (_notificationId >= 0x7fffffff) {
                         _notificationId = (_notificationId * Random().nextDouble()).toInt();
                         debugPrint(_notificationId.toString());
@@ -211,7 +212,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                             description: _description,
                             notificationId: _notificationId,
                             time: _time.toString().split('.')[0],
-                            title: _title));
+                            title: _title,
+                            repetition: _repetition));
 
                         showToastMessage("Task successfully created", Colors.black, 20);
                         Navigator.of(context).pop();

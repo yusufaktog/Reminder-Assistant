@@ -33,14 +33,10 @@ final ThemeData mainTheme = ThemeData(
 // Define the default font family.
   fontFamily: 'Georgia',
   textTheme: const TextTheme(
-    headline1: TextStyle(
-      color: Colors.black,
-      fontSize: 36.0,
-      fontWeight: FontWeight.bold,
-    ),
+    headline1: TextStyle(color: Colors.black, fontSize: 36.0, fontWeight: FontWeight.bold),
     headline2: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
-    headline3: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.normal),
-    headline4: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+    headline3: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.white),
+    headline4: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
     headline5: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.black),
     headline6: TextStyle(fontSize: 25.0, fontStyle: FontStyle.italic, color: Colors.black),
     bodyText1: TextStyle(fontSize: 18.0, color: Colors.black),
