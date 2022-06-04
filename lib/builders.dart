@@ -79,11 +79,13 @@ class CustomTextButton extends StatelessWidget {
   final String text;
   final Function onPressed;
   final TextStyle? textStyle;
+  final BoxFit? fit;
 
   const CustomTextButton({
     Key? key,
     required this.text,
     required this.onPressed,
+    this.fit,
     this.textStyle,
   }) : super(key: key);
 
@@ -96,10 +98,17 @@ class CustomTextButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            text,
-            style: textStyle,
-          ),
+          FittedBox(
+            fit: fit ?? BoxFit.none,
+            child: Text(
+              text,
+              style: textStyle,
+            ),
+          )
+          // Text(
+          //   text,
+          //   style: textStyle,
+          // ),
         ],
       ),
     );

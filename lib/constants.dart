@@ -59,6 +59,10 @@ const String timeError = "Please set a start time";
 const String titleError = "Field 'Title' cant be empty";
 const String descriptionError = "Field 'description' cant be empty";
 
+const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails('repeating channel id', 'repeating channel name',
+    channelDescription: 'repeating description', enableVibration: true, importance: Importance.max, priority: Priority.high);
+const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+
 const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
 
 const InitializationSettings initializationSettings = InitializationSettings(
@@ -80,7 +84,7 @@ showToastMessage(String message, Color textColor, double fontSize) {
 }
 
 RepetitionType convertStringToRepetitionType(String repetition) {
-  switch (repetition) {
+  switch (repetition.toLowerCase()) {
     case "daily":
       return RepetitionType.daily;
     case "weekly":
@@ -94,14 +98,14 @@ RepetitionType convertStringToRepetitionType(String repetition) {
 }
 
 int convertPriorityToInteger(String priority) {
-  switch (priority) {
-    case "Minor":
+  switch (priority.toLowerCase()) {
+    case "minor":
       return 1;
-    case "Medium":
+    case "medium":
       return 2;
-    case "Major":
+    case "major":
       return 3;
-    case "Critical":
+    case "critical":
       return 4;
     default:
       return 1;

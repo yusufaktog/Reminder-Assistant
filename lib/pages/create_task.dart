@@ -40,6 +40,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var _repetition = "No Repetition";
   var _time = DateTime.now();
   var _initialTimeText = "Open Time Picker";
+  var _timeButtonDisabled = false;
 
   final Set<String> _errors = {};
   final TaskService _taskService = TaskService();
@@ -108,48 +109,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Time", style: mainTheme.textTheme.headline5),
-                  const SizedBox(width: 70),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: CustomTextButton(
-                        text: _initialTimeText,
-                        textStyle: mainTheme.textTheme.headline5,
-                        onPressed: () {
-                          DatePicker.showDateTimePicker(
-                            context,
-                            currentTime: DateTime.now(),
-                            maxTime: DateTime.now().add(const Duration(days: 365)),
-                            minTime: DateTime.now(),
-                            onCancel: () {
-                              setState(() {
-                                _initialTimeText = "Open Time Picker";
-                              });
-                            },
-                            onChanged: (DateTime? time) {
-                              _time = time!;
-
-                              setState(() {
-                                _initialTimeText = _time.toString().split('.')[0];
-                              });
-                            },
-                            onConfirm: (DateTime? time) {
-                              _time = time!;
-
-                              setState(() {
-                                _initialTimeText = _time.toString().split('.')[0];
-                              });
-                            },
-                            showTitleActions: true,
-                            theme: datePickerTheme,
-                          );
-                        }),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
                   Text("Repetition", style: mainTheme.textTheme.headline5),
                   const SizedBox(width: 40),
                   Container(
@@ -160,6 +119,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         setState(() {
                           _repetitionItems.remove(value);
                           _repetitionItems.insert(0, value);
+                          if (_repetition == "No Repetition" || _repetition == "Every Minute" || _repetition == "Hourly") {
+                            _timeButtonDisabled = true;
+                          } else {
+                            _timeButtonDisabled = false;
+                          }
                         });
                       },
                       dropDownValue: _repetitionItems.first,
@@ -173,13 +137,52 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Time", style: mainTheme.textTheme.headline5),
+                  const SizedBox(width: 70),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: CustomTextButton(
+                        text: _timeButtonDisabled ? DateTime.now().toString().split('.')[0] : _initialTimeText,
+                        textStyle: mainTheme.textTheme.headline5,
+                        onPressed: () {
+                          if (_timeButtonDisabled) {
+                            return;
+                          }
+
+                          DatePicker.showDateTimePicker(context,
+                              currentTime: DateTime.now().add(const Duration(minutes: 1)),
+                              maxTime: DateTime.now().add(const Duration(days: 365)),
+                              minTime: DateTime.now().add(const Duration(minutes: 1)), onCancel: () {
+                            setState(() {
+                              _initialTimeText = "Open Time Picker";
+                            });
+                          }, onChanged: (DateTime? time) {
+                            _time = time!;
+
+                            setState(() {
+                              _initialTimeText = _time.toString().split('.')[0];
+                            });
+                          }, onConfirm: (DateTime? time) {
+                            _time = time!;
+
+                            setState(() {
+                              _initialTimeText = _time.toString().split('.')[0];
+                            });
+                          }, showTitleActions: true, theme: datePickerTheme);
+                        }),
+                  ),
+                ],
+              ),
               CustomCard(
                   backGroundColor: mainTheme.primaryColor,
                   verticalMargin: 30,
                   horizontalMargin: 130,
                   padding: const EdgeInsets.all(4.0),
                   child: CustomTextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_description.isEmpty) {
                         _errors.add(descriptionError);
                       }
@@ -190,39 +193,46 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         _errors.add(timeError);
                       }
 
-                      int _notificationId = createRandomNotificationId();
+                      int _notificationId = (createRandomNotificationId() / 1000).toInt();
                       // fit to 2^32
                       while (_notificationId >= 0x7fffffff) {
                         _notificationId = (_notificationId * Random().nextDouble()).toInt();
                         debugPrint(_notificationId.toString());
                       }
 
-                      if (_errors.isEmpty) {
-                        if (_repetition == "No Repetition") {
-                          _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, _time);
-                        } else if (_repetition == "Every Minute") {
-                          _notificationService.createScheduledNotificationWithRepeatInterval(
-                              _title, _description, _notificationId, RepeatInterval.everyMinute);
-                        } else {
-                          _notificationService.createCustomScheduledNotification(
-                              _title, _description, _notificationId, _time, convertStringToRepetitionType(_repetition));
+                      if (_errors.isNotEmpty) {
+                        for (var error in _errors) {
+                          showToastMessage(error, Colors.black, 20);
                         }
-                        _taskService.createTask(Task(
-                            priority: _priority,
-                            description: _description,
-                            notificationId: _notificationId,
-                            time: _time.toString().split('.')[0],
-                            title: _title,
-                            repetition: _repetition));
-
-                        showToastMessage("Task successfully created", Colors.black, 20);
-                        Navigator.of(context).pop();
                         return;
                       }
 
-                      for (var error in _errors) {
-                        showToastMessage(error, Colors.black, 20);
+                      String _taskId = await _taskService.createTask(Task(
+                          priority: _priority,
+                          description: _description,
+                          notificationId: _notificationId,
+                          time: _time.toString().split('.')[0],
+                          title: _title,
+                          repetition: _repetition));
+                      debugPrint("task id sent: " + _taskId);
+
+                      await _taskService.getDocRef(_taskId).update({'jop': "open url", 'url': 'https://www.google.com'});
+
+                      if (_repetition == "No Repetition") {
+                        _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, _time, _taskId);
+                      } else if (_repetition == "Every Minute") {
+                        _notificationService.createScheduledNotificationWithRepeatInterval(
+                            _title, _description, _notificationId, RepeatInterval.everyMinute, _taskId);
+                      } else if (_repetition == "Hourly") {
+                        _notificationService.createScheduledNotificationWithRepeatInterval(
+                            _title, _description, _notificationId, RepeatInterval.hourly, _taskId);
+                      } else {
+                        _notificationService.createCustomScheduledNotification(
+                            _title, _description, _notificationId, _time, convertStringToRepetitionType(_repetition), _taskId);
                       }
+
+                      showToastMessage("Task successfully created", Colors.black, 20);
+                      Navigator.of(context).pop();
                       _errors.clear();
                     },
                     textStyle: mainTheme.textTheme.headline2,

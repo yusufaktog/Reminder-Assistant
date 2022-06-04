@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/main.dart';
 import 'package:reminder_app/model/task.dart';
@@ -23,9 +22,6 @@ class AuthorizedPersonPage extends StatefulWidget {
 }
 
 class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
-  late AndroidNotificationChannel channel;
-
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final NotificationService _notificationService = NotificationService();
   final AuthService _authService = AuthService();
 
@@ -184,6 +180,5 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
     super.initState();
     _notificationService.configureDidReceiveLocalNotificationSubject(context);
     _notificationService.configureSelectNotificationSubject(context, widget.person);
-    //_notificationService.cancelAllNotifications();
   }
 }
