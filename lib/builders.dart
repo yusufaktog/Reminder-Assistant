@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:reminder_app/constants.dart';
 
@@ -201,7 +202,7 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
       items: widget.items.map<DropdownMenuItem<dynamic>>((dynamic value) {
         return DropdownMenuItem<dynamic>(
           value: value,
-          child: Text(value, style: widget.itemTextStyle),
+          child: Text(value.toString(), style: widget.itemTextStyle),
           onTap: () {
             if (widget.onTap != null) {
               widget.onTap!(value);
@@ -210,107 +211,5 @@ class _CustomDropDownMenuState extends State<CustomDropDownMenu> {
         );
       }).toList(),
     );
-  }
-}
-
-class MultiSelect extends StatefulWidget {
-  final List<dynamic> items;
-  final String title;
-  final bool allowMultipleSelection;
-  final Function onSubmit;
-  final Function onCancel;
-  final List<dynamic> selectedItems;
-
-  const MultiSelect(
-      {Key? key,
-      required this.items,
-      required this.allowMultipleSelection,
-      required this.onSubmit,
-      required this.onCancel,
-      required this.selectedItems,
-      required this.title})
-      : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _MultiSelectState();
-}
-
-class _MultiSelectState extends State<MultiSelect> {
-  void _itemChange(dynamic itemValue, bool isSelected) {
-    setState(() {
-      if (!widget.allowMultipleSelection) {
-        widget.selectedItems.clear();
-        widget.selectedItems.add(itemValue);
-        return;
-      }
-
-      if (isSelected) {
-        widget.selectedItems.add(itemValue);
-      } else {
-        widget.selectedItems.remove(itemValue);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      alignment: Alignment.center,
-      title: Text(
-        _createTitle(),
-        style: mainTheme.textTheme.headline2,
-      ),
-      content: SingleChildScrollView(
-        child: ListBody(
-          children: widget.items
-              .map((item) => CheckboxListTile(
-                    activeColor: mainTheme.primaryColor,
-                    selectedTileColor: mainTheme.primaryColor,
-                    value: widget.selectedItems.contains(item),
-                    title: Text(item.toString(), style: mainTheme.textTheme.bodyText1),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (isChecked) => _itemChange(item, isChecked!),
-                  ))
-              .toList(),
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.white), alignment: Alignment.centerLeft),
-              child: Text('Cancel', style: mainTheme.textTheme.bodyText1),
-              onPressed: () {
-                widget.onCancel();
-              },
-            ),
-            ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                ),
-                child: Text('Submit', style: mainTheme.textTheme.bodyText1),
-                onPressed: () {
-                  widget.onSubmit();
-                }),
-          ],
-        )
-      ],
-    );
-  }
-
-  String _createTitle() {
-    switch (widget.title) {
-      case "Weekly":
-        return "Select The days to repeat";
-      case "Hourly":
-        return "Repeat per hours";
-      case "Monthly":
-        return "Select The months to repeat";
-      case "Yearly":
-        return "Repeat per years";
-      default:
-        return "Select The days to repeat";
-    }
   }
 }

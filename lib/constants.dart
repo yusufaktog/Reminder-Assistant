@@ -138,3 +138,31 @@ String convertSelectionToFieldName(selectedSortType) {
       return "time";
   }
 }
+
+List<String> createDialogElements(String jop) {
+  List<String> elements = [];
+
+  switch (jop.toLowerCase()) {
+    case "none":
+      break;
+    case "phone call":
+      elements.add("Phone Number");
+      break;
+    case "send email":
+      elements.add("Email Address");
+      elements.add("Subject");
+      elements.add("Body");
+      break;
+    case "send sms":
+      elements.add("Phone Number");
+      elements.add("Body");
+      break;
+    case "open url":
+      elements.add("Url");
+      break;
+  }
+
+  return elements;
+}
+
+const emptyWidget = SizedBox();

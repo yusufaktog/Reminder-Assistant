@@ -157,7 +157,7 @@ class NotificationService {
     }
     jop = documentSnapshot["jop"];
 
-    switch (jop) {
+    switch (jop.toLowerCase()) {
       case "open url":
         url = documentSnapshot["url"];
         await openUrl(url);
@@ -185,26 +185,5 @@ class NotificationService {
       default:
         break;
     }
-
-    /* StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: ,
-      builder: (_, snapshot) {
-        try {
-          final docs = snapshot.data!.docs;
-          for (var element in docs) {
-            if (element.id == docId) {
-              print('bingo');
-              phoneNumber = element.data().keys.contains("phoneNumber") ? element.data()["phoneNumber"] : "";
-              emailAddress = element.data().keys.contains("emailAddress") ? element.data()["emailAddress"] : "";
-              url = element.data().keys.contains("url") ? element.data()["url"] : "";
-              subject = element.data().keys.contains("subject") ? element.data()["subject"] : "";
-              body = element.data().keys.contains("body") ? element.data()["body"] : "";
-              jop = element.data().keys.contains("jop") ? element.data()["jop"] : "";
-            }
-          }
-        } on Error {}
-        return const Text("");
-      },
-    );*/
   }
 }

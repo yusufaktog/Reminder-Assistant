@@ -34,13 +34,22 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
   final List<String> _repetitionItems = <String>["No Repetition", "Every Minute", "Hourly", "Daily", "Weekly", "Monthly", "Yearly"];
 
+  final List<String> _jobItems = <String>["none", "Open Url", "Phone Call", "Send Email", "Send Sms"];
+
   var _title = "";
   var _description = "";
   var _priority = "";
   var _repetition = "No Repetition";
   var _time = DateTime.now();
   var _initialTimeText = "Open Time Picker";
+  var _jop = "none";
+  var _jopFields = [];
   var _timeButtonDisabled = false;
+  var _phoneNumber = "";
+  var _subject = "";
+  var _body = "";
+  var _emailAddress = "";
+  var _url = "";
 
   final Set<String> _errors = {};
   final TaskService _taskService = TaskService();
@@ -130,9 +139,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       items: _repetitionItems,
                       dropDownColor: Colors.white,
                       itemTextStyle: mainTheme.textTheme.headline5,
-                      onTap: (value) {
-                        _repetition = value;
-                      },
                     ),
                   ),
                 ],
@@ -151,7 +157,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                           if (_timeButtonDisabled) {
                             return;
                           }
-
                           DatePicker.showDateTimePicker(context,
                               currentTime: DateTime.now().add(const Duration(minutes: 1)),
                               maxTime: DateTime.now().add(const Duration(days: 365)),
@@ -176,6 +181,80 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Attached Job", style: mainTheme.textTheme.headline5),
+                  const SizedBox(width: 40),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: CustomDropDownMenu(
+                        onChanged: (dynamic value) async {
+                          _jop = value;
+                          setState(() {
+                            _jobItems.remove(value);
+                            _jobItems.insert(0, value);
+                            _jopFields = createDialogElements(_jop);
+                          });
+                        },
+                        dropDownValue: _jobItems.first,
+                        items: _jobItems,
+                        dropDownColor: Colors.white,
+                        itemTextStyle: mainTheme.textTheme.headline5),
+                  ),
+                ],
+              ),
+              _jopFields.contains("Phone Number")
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: CustomUnderlinedTextField(
+                        onChanged: (value) {
+                          _phoneNumber = value;
+                        },
+                        style: mainTheme.textTheme.headline5!,
+                        labelText: "Phone Number",
+                      ))
+                  : emptyWidget,
+              _jopFields.contains("Email Address")
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: CustomUnderlinedTextField(
+                          onChanged: (value) {
+                            _emailAddress = value;
+                          },
+                          style: mainTheme.textTheme.headline5!,
+                          labelText: "Email Address"))
+                  : emptyWidget,
+              _jopFields.contains("Subject")
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: CustomUnderlinedTextField(
+                          onChanged: (value) {
+                            _subject = value;
+                          },
+                          style: mainTheme.textTheme.headline5!,
+                          labelText: "Subject"))
+                  : emptyWidget,
+              _jopFields.contains("Body")
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: CustomUnderlinedTextField(
+                          onChanged: (value) {
+                            _body = value;
+                          },
+                          style: mainTheme.textTheme.headline5!,
+                          labelText: "Body"))
+                  : emptyWidget,
+              _jopFields.contains("Url")
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: CustomUnderlinedTextField(
+                          onChanged: (value) {
+                            _url = value;
+                          },
+                          style: mainTheme.textTheme.headline5!,
+                          labelText: "Url"))
+                  : emptyWidget,
               CustomCard(
                   backGroundColor: mainTheme.primaryColor,
                   verticalMargin: 30,
@@ -214,9 +293,15 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                           time: _time.toString().split('.')[0],
                           title: _title,
                           repetition: _repetition));
-                      debugPrint("task id sent: " + _taskId);
 
-                      await _taskService.getDocRef(_taskId).update({'jop': "open url", 'url': 'https://www.google.com'});
+                      await _taskService.getDocRef(_taskId).update({
+                        'jop': _jop,
+                        if (_url.isNotEmpty) 'url': _url,
+                        if (_body.isNotEmpty) 'body': _body,
+                        if (_phoneNumber.isNotEmpty) 'phoneNumber': _phoneNumber,
+                        if (_subject.isNotEmpty) 'subject': _subject,
+                        if (_emailAddress.isNotEmpty) 'emailAddress': _emailAddress
+                      });
 
                       if (_repetition == "No Repetition") {
                         _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, _time, _taskId);
