@@ -6,9 +6,11 @@ class Task {
   final String priority;
   final int notificationId;
   final String repetition;
+  final String? jop;
 
   Task(
       {this.id,
+      this.jop,
       required this.repetition,
       required this.priority,
       required this.time,

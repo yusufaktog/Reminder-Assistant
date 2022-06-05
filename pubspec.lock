@@ -303,13 +303,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  multiselect_formfield:
-    dependency: "direct main"
-    description:
-      name: multiselect_formfield
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.7"
   page_transition:
     dependency: "direct main"
     description:

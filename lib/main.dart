@@ -2,14 +2,12 @@ import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reminder_app/pages/authorized_user.dart';
 import 'package:reminder_app/service/auth.dart';
-import 'package:reminder_app/service/jop.dart';
 import 'package:reminder_app/service/notification.dart';
 import 'package:reminder_app/service/person.dart';
 
@@ -246,26 +244,6 @@ class _ReminderAppState extends State<ReminderApp> {
                   },
                 ),
               ),
-              TextButton(
-                  onPressed: () {
-                    openUrl('https://flutter.dev');
-                  },
-                  child: Text("OPEN URL")),
-              TextButton(
-                  onPressed: () {
-                    makePhoneCall("+90 5541849047");
-                  },
-                  child: Text("PHONE CALL")),
-              TextButton(
-                  onPressed: () {
-                    sendEmail("haloaktog@gmail.com", "Test", "Sent From flutter mobile app");
-                  },
-                  child: Text("SEND email")),
-              TextButton(
-                  onPressed: () {
-                    sendSms("+90 5541849047", "Sent From flutter mobile app");
-                  },
-                  child: Text("SEND sms"))
             ]),
           ),
         ),

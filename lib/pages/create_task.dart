@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -12,17 +11,6 @@ import '../builders.dart';
 import '../constants.dart';
 import '../model/task.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: options);
-
-  runApp(MaterialApp(
-    home: const CreateTaskPage(),
-    debugShowCheckedModeBanner: false,
-    theme: mainTheme,
-  ));
-}
-
 class CreateTaskPage extends StatefulWidget {
   const CreateTaskPage({Key? key}) : super(key: key);
 
@@ -33,9 +21,8 @@ class CreateTaskPage extends StatefulWidget {
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
   final List<String> _repetitionItems = <String>["No Repetition", "Every Minute", "Hourly", "Daily", "Weekly", "Monthly", "Yearly"];
-
   final List<String> _jobItems = <String>["none", "Open Url", "Phone Call", "Send Email", "Send Sms"];
-
+  var _repetitive = true;
   var _title = "";
   var _description = "";
   var _priority = "";
@@ -129,10 +116,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                           _repetitionItems.remove(value);
                           _repetitionItems.insert(0, value);
                           if (_repetition == "No Repetition" || _repetition == "Every Minute" || _repetition == "Hourly") {
+                            _repetitive = false;
                             _timeButtonDisabled = true;
                           } else {
                             _timeButtonDisabled = false;
                           }
+                          setState(() {
+                            _timeButtonDisabled ? _initialTimeText = DateTime.now().toString().split('.')[0] : _initialTimeText = "Open Time Picker";
+                          });
                         });
                       },
                       dropDownValue: _repetitionItems.first,
@@ -151,7 +142,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomTextButton(
-                        text: _timeButtonDisabled ? DateTime.now().toString().split('.')[0] : _initialTimeText,
+                        text: _initialTimeText,
                         textStyle: mainTheme.textTheme.headline5,
                         onPressed: () {
                           if (_timeButtonDisabled) {
@@ -268,7 +259,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       if (_title.isEmpty) {
                         _errors.add(titleError);
                       }
-                      if (_initialTimeText == "Open Time Picker") {
+                      if (_initialTimeText == "Open Time Picker" && _repetitive) {
                         _errors.add(timeError);
                       }
 
@@ -276,7 +267,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       // fit to 2^32
                       while (_notificationId >= 0x7fffffff) {
                         _notificationId = (_notificationId * Random().nextDouble()).toInt();
-                        debugPrint(_notificationId.toString());
                       }
 
                       if (_errors.isNotEmpty) {
@@ -285,7 +275,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         }
                         return;
                       }
-
                       String _taskId = await _taskService.createTask(Task(
                           priority: _priority,
                           description: _description,
@@ -303,8 +292,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         if (_emailAddress.isNotEmpty) 'emailAddress': _emailAddress
                       });
 
+                      DateTime currentTime = DateTime.now().add(const Duration(minutes: 1));
                       if (_repetition == "No Repetition") {
-                        _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, _time, _taskId);
+                        _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, currentTime, _taskId);
                       } else if (_repetition == "Every Minute") {
                         _notificationService.createScheduledNotificationWithRepeatInterval(
                             _title, _description, _notificationId, RepeatInterval.everyMinute, _taskId);
@@ -315,9 +305,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         _notificationService.createCustomScheduledNotification(
                             _title, _description, _notificationId, _time, convertStringToRepetitionType(_repetition), _taskId);
                       }
-
-                      showToastMessage("Task successfully created", Colors.black, 20);
                       Navigator.of(context).pop();
+                      showToastMessage("Task successfully created", Colors.black, 20);
                       _errors.clear();
                     },
                     textStyle: mainTheme.textTheme.headline2,
@@ -329,5 +318,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _errors.clear();
+    _initialTimeText = DateTime.now().add(const Duration(minutes: 1)).toString().split('.')[0];
   }
 }

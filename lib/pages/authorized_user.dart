@@ -5,12 +5,10 @@ import 'package:reminder_app/main.dart';
 import 'package:reminder_app/model/task.dart';
 import 'package:reminder_app/pages/task_card.dart';
 import 'package:reminder_app/service/auth.dart';
-import 'package:reminder_app/service/notification.dart';
 
 import '../builders.dart';
 import '../model/person.dart' as models;
 import 'create_task.dart';
-import 'detailed_task_page.dart';
 
 class AuthorizedPersonPage extends StatefulWidget {
   final models.Person person;
@@ -22,13 +20,12 @@ class AuthorizedPersonPage extends StatefulWidget {
 }
 
 class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
-  final NotificationService _notificationService = NotificationService();
   final AuthService _authService = AuthService();
 
   var _selectedItem = "";
-  var _selectedSortFieldName = "priority";
-  var _isDescending = true;
-  final List<String> _dropDownMenuItems = List.of({"By Priority (Desc)", "By Priority (Asc)", "By Date (Desc)", "By Date (Asc)"});
+  var _selectedSortFieldName = "time";
+  var _isDescending = false;
+  final List<String> _dropDownMenuItems = List.of({"By Date (Asc)", "By Date (Desc)", "By Priority (Desc)", "By Priority (Asc)"});
 
   @override
   Widget build(BuildContext context) {
@@ -114,28 +111,23 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                             itemCount: snapshot.data!.size,
                             itemBuilder: (context, index) {
                               var tasks = snapshot.data!.docs;
+
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                                 child: InkWell(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => DetailedTaskPage(),
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                                     child: TaskCard(
                                       task: Task(
-                                        id: tasks[index]["id"],
-                                        title: tasks[index]["title"],
-                                        description: tasks[index]["description"],
-                                        time: tasks[index]["time"],
-                                        priority: convertPriorityToString(tasks[index]["priority"]),
-                                        notificationId: tasks[index]["notificationId"],
-                                        repetition: tasks[index]['repetition'],
-                                      ),
+                                          id: tasks[index]["id"],
+                                          title: tasks[index]["title"],
+                                          description: tasks[index]["description"],
+                                          time: tasks[index]["time"],
+                                          priority: convertPriorityToString(tasks[index]["priority"]),
+                                          notificationId: tasks[index]["notificationId"],
+                                          repetition: tasks[index]['repetition'],
+                                          jop: tasks[index].data().toString().contains("jop") ? tasks[index]["jop"] : "none"),
                                     ),
                                   ),
                                 ),
@@ -173,12 +165,5 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _notificationService.configureDidReceiveLocalNotificationSubject(context);
-    _notificationService.configureSelectNotificationSubject(context, widget.person);
   }
 }

@@ -36,15 +36,15 @@ class _TaskCardState extends State<TaskCard> {
               child: Row(
                 children: [
                   Expanded(
-                      flex: 4,
+                      flex: 2,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(widget.task.title),
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(widget.task.title, textAlign: TextAlign.left),
                       )),
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
+                      padding: const EdgeInsets.only(top: 16.0, left: 10),
                       child: Text(
                         widget.task.time,
                         textAlign: TextAlign.center,
@@ -58,7 +58,7 @@ class _TaskCardState extends State<TaskCard> {
             Row(
               children: [
                 Expanded(
-                  flex: 6,
+                  flex: 7,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
@@ -72,7 +72,16 @@ class _TaskCardState extends State<TaskCard> {
                   ),
                 ),
                 Expanded(
-                    flex: 4,
+                    flex: 3,
+                    child: Column(
+                      children: [
+                        Icon(Icons.work_history_outlined, color: mainTheme.primaryColor),
+                        const SizedBox(height: 5),
+                        Text(widget.task.jop!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black, fontSize: 14))
+                      ],
+                    )),
+                Expanded(
+                    flex: 6,
                     child: ListTile(
                       horizontalTitleGap: 0,
                       leading: Icon(

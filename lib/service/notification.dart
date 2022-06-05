@@ -1,25 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:reminder_app/model/person.dart' as models;
-import 'package:rxdart/rxdart.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants.dart';
 import '../model/notification.dart';
-import '../pages/detailed_task_page.dart';
 import 'jop.dart';
 
 class NotificationService {
-  String? selectedNotificationPayload;
+  // String? selectedNotificationPayload;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject = BehaviorSubject<ReceivedNotification>();
-  final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
+
+  // final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject = BehaviorSubject<ReceivedNotification>();
+/*  final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
+  final LocalStorageService _localStorageService = LocalStorageService();*/
 
   Future<void> configureLocalTimeZone() async {
     if (kIsWeb) {
@@ -30,38 +27,13 @@ class NotificationService {
     tz.setLocalLocation(tz.getLocation(timeZoneName!));
   }
 
+/*
   void configureSelectNotificationSubject(context, models.Person person) {
     selectNotificationSubject.stream.listen((String? payload) async {
-      debugPrint("reached");
 
-      /*FirebaseFirestore.instance.collection("People").doc(person.id).collection("Tasks").doc(payload).snapshots().forEach((element) {
-        phoneNumber = element.data()!["phoneNumber"];
-        emailAddress = element.data()!["emailAddress"];
-        url = element.data()!["url"];
-        subject = element.data()!["subject"];
-        body = element.data()!["body"];
-        jop = element.data()!["jop"];
-      });
-      debugPrint(jop);
-      switch (jop) {
-        case "none":
-          await switchPage(context, AuthorizedPersonPage(person: person));
-          break;
-        case "phone call":
-          await makePhoneCall(phoneNumber);
-          break;
-        case "send email":
-          await sendEmail(emailAddress, subject, body);
-          break;
-        case "open url":
-          await openUrl(url);
-          break;
-        case "send sms":
-          await sendSms(phoneNumber, body);
-          break;
-      }*/
     });
   }
+*/
 
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
@@ -71,7 +43,7 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-  void configureDidReceiveLocalNotificationSubject(context) {
+/*  void configureDidReceiveLocalNotificationSubject(context) {
     didReceiveLocalNotificationSubject.stream.listen((ReceivedNotification receivedNotification) async {
       await showDialog(
         context: context,
@@ -96,12 +68,13 @@ class NotificationService {
         ),
       );
     });
-  }
+  }*/
 
   Future<void> createScheduledNotificationWithRepeatInterval(
       String title, String body, int notificationId, RepeatInterval repeatInterval, String taskId) async {
     await flutterLocalNotificationsPlugin.periodicallyShow(notificationId, title, body, repeatInterval, platformChannelSpecifics,
         payload: taskId, androidAllowWhileIdle: true);
+    flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   }
 
   Future<void> createScheduledNotificationWithNoRepetition(String title, String body, int notificationId, DateTime dateTime, String taskId) async {
@@ -155,6 +128,7 @@ class NotificationService {
     if (!documentSnapshot.exists) {
       return;
     }
+
     jop = documentSnapshot["jop"];
 
     switch (jop.toLowerCase()) {
