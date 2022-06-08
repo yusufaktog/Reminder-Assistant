@@ -3,10 +3,10 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/service/notification.dart';
 import 'package:reminder_app/service/task.dart';
 
+import '../constants.dart';
 import '../model/task.dart';
 
 class TaskCard extends StatefulWidget {
@@ -21,6 +21,7 @@ class TaskCard extends StatefulWidget {
 class _TaskCardState extends State<TaskCard> {
   final TaskService _taskService = TaskService();
   final NotificationService _notificationService = NotificationService();
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -29,60 +30,58 @@ class _TaskCardState extends State<TaskCard> {
       color: adjustCardPriorityColor(widget.task.priority),
       child: SizedBox(
         height: 160,
-        child: Column(
+        child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Row(
-                children: [
-                  Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Text(widget.task.title, textAlign: TextAlign.left),
-                      )),
-                  Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0, left: 10),
-                      child: Text(
-                        widget.task.time,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, top: 10),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.task.title.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    Text(widget.task.description,
+                        style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+                        textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.clip)
+                  ],
+                ),
               ),
             ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      widget.task.description,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.work_history_outlined, color: mainTheme.primaryColor),
+                    const SizedBox(height: 5),
+                    Text(widget.task.jop!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black, fontSize: 14))
+                  ],
                 ),
-                Expanded(
-                    flex: 3,
-                    child: Column(
-                      children: [
-                        Icon(Icons.work_history_outlined, color: mainTheme.primaryColor),
-                        const SizedBox(height: 5),
-                        Text(widget.task.jop!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black, fontSize: 14))
-                      ],
-                    )),
-                Expanded(
-                    flex: 6,
-                    child: ListTile(
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.task.time,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                    ListTile(
+                      contentPadding: const EdgeInsets.only(right: 8.0),
                       horizontalTitleGap: 0,
                       leading: Icon(
                         Icons.repeat_outlined,
@@ -94,24 +93,21 @@ class _TaskCardState extends State<TaskCard> {
                         style: const TextStyle(color: Colors.black, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
-                    ))
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    padding: const EdgeInsets.only(right: 40),
-                    onPressed: () {
-                      _taskService.deleteTask(widget.task.id!);
-                      _notificationService.cancelNotificationById(widget.task.notificationId);
-                    },
-                    icon: Icon(
-                      Icons.delete,
-                      size: 30,
-                      color: mainTheme.primaryColor,
-                    )),
-              ],
+                    ),
+                    IconButton(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        onPressed: () {
+                          _taskService.deleteTask(widget.task.id!);
+                          _notificationService.cancelNotificationById(widget.task.notificationId);
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          size: 30,
+                          color: mainTheme.primaryColor,
+                        )),
+                  ],
+                ),
+              ),
             )
           ],
         ),

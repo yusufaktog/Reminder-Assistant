@@ -22,7 +22,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
   final List<String> _repetitionItems = <String>["No Repetition", "Every Minute", "Hourly", "Daily", "Weekly", "Monthly", "Yearly"];
   final List<String> _jobItems = <String>["none", "Open Url", "Phone Call", "Send Email", "Send Sms"];
-  var _repetitive = true;
   var _title = "";
   var _description = "";
   var _priority = "";
@@ -58,7 +57,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   child: CustomUnderlinedTextField(
                     style: mainTheme.textTheme.headline5!,
                     onChanged: (value) {
-                      _title = value;
+                      setState(() {
+                        _title = value;
+                      });
                     },
                     labelText: "Title",
                   ),
@@ -71,7 +72,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   child: CustomUnderlinedTextField(
                     style: mainTheme.textTheme.headline5!,
                     onChanged: (value) {
-                      _description = value;
+                      setState(() {
+                        _description = value;
+                      });
                     },
                     labelText: "Description",
                   ),
@@ -89,8 +92,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
                       onChanged: (value) {
-                        _priority = value;
                         setState(() {
+                          _priority = value;
                           _priorityItems.remove(value);
                           _priorityItems.insert(0, value);
                         });
@@ -111,12 +114,17 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: CustomDropDownMenu(
                       onChanged: (dynamic value) async {
-                        _repetition = value;
                         setState(() {
+                          _repetition = value;
                           _repetitionItems.remove(value);
                           _repetitionItems.insert(0, value);
-                          if (_repetition == "No Repetition" || _repetition == "Every Minute" || _repetition == "Hourly") {
-                            _repetitive = false;
+
+                          if (_repetition == "Every Minute" || _repetition == "Hourly") {
+                            showToastMessage(
+                                "With : $_repetition, Repeat interval automatically starts at creation time "
+                                "Thus, no need to set a start time",
+                                Colors.red,
+                                16);
                             _timeButtonDisabled = true;
                           } else {
                             _timeButtonDisabled = false;
@@ -146,6 +154,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         textStyle: mainTheme.textTheme.headline5,
                         onPressed: () {
                           if (_timeButtonDisabled) {
+                            showToastMessage("With This Repetition Option Time can not be chosen...", Colors.black, 20);
                             return;
                           }
                           DatePicker.showDateTimePicker(context,
@@ -259,7 +268,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       if (_title.isEmpty) {
                         _errors.add(titleError);
                       }
-                      if (_initialTimeText == "Open Time Picker" && _repetitive) {
+                      if (_initialTimeText == "Open Time Picker") {
                         _errors.add(timeError);
                       }
 
@@ -271,8 +280,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
                       if (_errors.isNotEmpty) {
                         for (var error in _errors) {
-                          showToastMessage(error, Colors.black, 20);
+                          showToastMessage(error, mainTheme.primaryColor, 20);
                         }
+                        _errors.clear();
                         return;
                       }
                       String _taskId = await _taskService.createTask(Task(
@@ -292,9 +302,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         if (_emailAddress.isNotEmpty) 'emailAddress': _emailAddress
                       });
 
-                      DateTime currentTime = DateTime.now().add(const Duration(minutes: 1));
                       if (_repetition == "No Repetition") {
-                        _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, currentTime, _taskId);
+                        _notificationService.createScheduledNotificationWithNoRepetition(_title, _description, _notificationId, _time, _taskId);
                       } else if (_repetition == "Every Minute") {
                         _notificationService.createScheduledNotificationWithRepeatInterval(
                             _title, _description, _notificationId, RepeatInterval.everyMinute, _taskId);
@@ -305,9 +314,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         _notificationService.createCustomScheduledNotification(
                             _title, _description, _notificationId, _time, convertStringToRepetitionType(_repetition), _taskId);
                       }
+                      _errors.clear();
                       Navigator.of(context).pop();
                       showToastMessage("Task successfully created", Colors.black, 20);
-                      _errors.clear();
                     },
                     textStyle: mainTheme.textTheme.headline2,
                     text: "CREATE",
@@ -324,6 +333,5 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   void initState() {
     super.initState();
     _errors.clear();
-    _initialTimeText = DateTime.now().add(const Duration(minutes: 1)).toString().split('.')[0];
   }
 }

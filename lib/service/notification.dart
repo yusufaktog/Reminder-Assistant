@@ -43,33 +43,6 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-/*  void configureDidReceiveLocalNotificationSubject(context) {
-    didReceiveLocalNotificationSubject.stream.listen((ReceivedNotification receivedNotification) async {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-          title: receivedNotification.title != null ? Text(receivedNotification.title!) : null,
-          content: receivedNotification.body != null ? Text(receivedNotification.body!) : null,
-          actions: <Widget>[
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              onPressed: () async {
-                Navigator.of(context, rootNavigator: true).pop();
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) => DetailedTaskPage(),
-                  ),
-                );
-              },
-              child: const Text('Ok'),
-            )
-          ],
-        ),
-      );
-    });
-  }*/
-
   Future<void> createScheduledNotificationWithRepeatInterval(
       String title, String body, int notificationId, RepeatInterval repeatInterval, String taskId) async {
     await flutterLocalNotificationsPlugin.periodicallyShow(notificationId, title, body, repeatInterval, platformChannelSpecifics,

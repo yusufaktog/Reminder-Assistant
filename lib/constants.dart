@@ -73,13 +73,15 @@ createRandomNotificationId() {
   return DateTime.now().microsecondsSinceEpoch;
 }
 
-showToastMessage(String message, Color textColor, double fontSize) {
+void showToastMessage(String message, Color textColor, double fontSize) {
+  print(message.length);
   Fluttertoast.showToast(
       msg: message,
       backgroundColor: mainTheme.backgroundColor,
       fontSize: fontSize,
-      timeInSecForIosWeb: 3,
+      timeInSecForIosWeb: message.length > 40 ? 4 : 2,
       textColor: textColor,
+      toastLength: message.length > 40 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
       webPosition: "center");
 }
 

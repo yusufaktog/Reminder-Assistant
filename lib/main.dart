@@ -10,6 +10,7 @@ import 'package:reminder_app/pages/authorized_user.dart';
 import 'package:reminder_app/service/auth.dart';
 import 'package:reminder_app/service/notification.dart';
 import 'package:reminder_app/service/person.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'builders.dart';
 import 'constants.dart';
@@ -40,6 +41,8 @@ class ReminderApp extends StatefulWidget {
 class _ReminderAppState extends State<ReminderApp> {
   final AuthService _authService = AuthService();
   final PersonService _personService = PersonService();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   String _name = "";
   String _email = "";
@@ -47,6 +50,7 @@ class _ReminderAppState extends State<ReminderApp> {
   String _confirmPassword = "";
   bool _visible = true;
   bool _hasAccount = true;
+  bool _isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +110,7 @@ class _ReminderAppState extends State<ReminderApp> {
                   child: CustomTextField(
                     hintText: "E-Mail",
                     fontSize: 20,
+                    controller: _emailController,
                     textColor: Colors.black,
                     onChanged: (value) {
                       _email = value;
@@ -122,6 +127,7 @@ class _ReminderAppState extends State<ReminderApp> {
                 verticalMargin: 10.0,
                 child: CustomTextField(
                   hintText: "Password",
+                  controller: _passwordController,
                   fontSize: 20,
                   textColor: Colors.black,
                   isObscureText: !_visible,
@@ -143,6 +149,25 @@ class _ReminderAppState extends State<ReminderApp> {
                           : Icon(Icons.visibility_off, color: mainTheme.primaryColor)),
                 ),
               ),
+              _hasAccount
+                  ? ListTile(
+                      horizontalTitleGap: 0,
+                      leading: Checkbox(
+                          side: MaterialStateBorderSide.resolveWith(
+                            (states) => BorderSide(width: 2.0, color: mainTheme.primaryColor),
+                          ),
+                          activeColor: mainTheme.primaryColor,
+                          value: _isChecked,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              _isChecked = !_isChecked;
+                            });
+                          }),
+                      title: const Text(
+                        "Remember Me",
+                        style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                      ))
+                  : const SizedBox(),
               !_hasAccount
                   ? CustomCard(
                       padding: const EdgeInsets.all(8.0),
@@ -197,6 +222,7 @@ class _ReminderAppState extends State<ReminderApp> {
                     }
 
                     if (_authSuccess) {
+                      _saveUserCredentials(_isChecked);
                       switchPage(context,
                           AuthorizedPersonPage(person: models.Person(id: FirebaseAuth.instance.currentUser!.uid, name: _name, email: _email)));
                     }
@@ -226,28 +252,55 @@ class _ReminderAppState extends State<ReminderApp> {
                     ),
                   )
                 ],
-              ),
-              CustomCard(
-                padding: const EdgeInsets.all(8.0),
-                backGroundColor: mainTheme.backgroundColor,
-                borderRadius: 10.0,
-                horizontalMargin: 100.0,
-                verticalMargin: 10.0,
-                child: CustomTextButton(
-                  text: "TEST",
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.deepPurple),
-                  onPressed: () {
-                    _authService.signIn("yusufaktok@gmail.com", "yusuf123").then((value) => switchPage(
-                        context,
-                        AuthorizedPersonPage(
-                            person: models.Person(id: FirebaseAuth.instance.currentUser!.uid, name: "Yusuf Aktoğ", email: "yusufaktok@gmail.com"))));
-                  },
-                ),
-              ),
+              )
             ]),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _saveUserCredentials(bool? value) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    if (!_isChecked) {
+      sharedPreferences.clear();
+      debugPrint("user does not want to be remembered!");
+      return;
+    }
+
+    sharedPreferences.setBool("remember_me", _isChecked);
+    sharedPreferences.setString('email', _email);
+    sharedPreferences.setString('password', _password);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmailPassword();
+  }
+
+  void _loadUserEmailPassword() async {
+    try {
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      var _savedEmail = _prefs.getString("email") ?? "";
+      var _savedPassword = _prefs.getString("password") ?? "";
+      var _savedRememberMe = _prefs.getBool("remember_me") ?? false;
+
+      debugPrint(_savedEmail);
+      debugPrint(_savedPassword);
+      debugPrint(_savedRememberMe.toString());
+      if (_savedRememberMe) {
+        setState(() {
+          _isChecked = true;
+          _email = _savedEmail ?? "";
+          _password = _savedPassword ?? "";
+          _emailController.text = _email;
+          _passwordController.text = _password;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

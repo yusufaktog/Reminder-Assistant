@@ -42,25 +42,18 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 1,
                       child: Text(
                         "Active Tasks",
                         style: mainTheme.textTheme.headline2,
-                        textAlign: TextAlign.end,
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: IconButton(
-                          alignment: Alignment.centerRight,
-                          onPressed: () {
-                            _authService.signOut().then((value) => switchPage(context, const ReminderApp()));
-                          },
-                          icon: const Icon(
-                            Icons.logout,
-                            color: Colors.red,
-                          )),
-                    )
+                    IconButton(
+                        onPressed: () {
+                          _authService.signOut().then((value) => switchPage(context, const ReminderApp()));
+                        },
+                        icon: const Icon(Icons.logout, color: Colors.red, size: 25))
                   ],
                 ),
                 Container(
