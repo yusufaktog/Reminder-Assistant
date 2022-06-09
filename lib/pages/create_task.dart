@@ -22,6 +22,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   final List<String> _priorityItems = <String>['Minor', 'Medium', 'Major', 'Critical'];
   final List<String> _repetitionItems = <String>["No Repetition", "Every Minute", "Hourly", "Daily", "Weekly", "Monthly", "Yearly"];
   final List<String> _jobItems = <String>["none", "Open Url", "Phone Call", "Send Email", "Send Sms"];
+
+  final TextEditingController _phoneTextEditingController = TextEditingController();
   var _title = "";
   var _description = "";
   var _priority = "";
@@ -31,7 +33,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   var _jop = "none";
   var _jopFields = [];
   var _timeButtonDisabled = false;
-  var _phoneNumber = "";
+  var _phoneNumber = "+90 ";
   var _subject = "";
   var _body = "";
   var _emailAddress = "";
@@ -208,17 +210,20 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ? Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: CustomUnderlinedTextField(
+                        keyboardType: TextInputType.phone,
                         onChanged: (value) {
                           _phoneNumber = value;
                         },
                         style: mainTheme.textTheme.headline5!,
                         labelText: "Phone Number",
+                        textEditingController: _phoneTextEditingController,
                       ))
                   : emptyWidget,
               _jopFields.contains("Email Address")
                   ? Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: CustomUnderlinedTextField(
+                          keyboardType: TextInputType.emailAddress,
                           onChanged: (value) {
                             _emailAddress = value;
                           },
@@ -249,6 +254,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                   ? Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: CustomUnderlinedTextField(
+                          keyboardType: TextInputType.url,
                           onChanged: (value) {
                             _url = value;
                           },
@@ -332,6 +338,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   @override
   void initState() {
     super.initState();
+    _phoneTextEditingController.text = "(+90) ";
     _errors.clear();
   }
 }

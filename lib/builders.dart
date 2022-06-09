@@ -131,13 +131,25 @@ class CustomUnderlinedTextField extends StatelessWidget {
   final String? labelText;
   final String? hintText;
   final Color? borderColor;
+  final TextInputType? keyboardType;
+  final TextEditingController? textEditingController;
 
-  const CustomUnderlinedTextField({Key? key, required this.onChanged, required this.style, this.hintText, this.labelText, this.borderColor})
+  const CustomUnderlinedTextField(
+      {Key? key,
+      required this.onChanged,
+      required this.style,
+      this.hintText,
+      this.labelText,
+      this.borderColor,
+      this.keyboardType,
+      this.textEditingController})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: keyboardType ?? TextInputType.text,
+      controller: textEditingController,
       onChanged: (value) {
         onChanged(value);
       },

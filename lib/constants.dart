@@ -74,7 +74,6 @@ createRandomNotificationId() {
 }
 
 void showToastMessage(String message, Color textColor, double fontSize) {
-  print(message.length);
   Fluttertoast.showToast(
       msg: message,
       backgroundColor: mainTheme.backgroundColor,

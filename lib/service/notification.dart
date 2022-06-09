@@ -11,12 +11,7 @@ import '../model/notification.dart';
 import 'jop.dart';
 
 class NotificationService {
-  // String? selectedNotificationPayload;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  // final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject = BehaviorSubject<ReceivedNotification>();
-/*  final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
-  final LocalStorageService _localStorageService = LocalStorageService();*/
 
   Future<void> configureLocalTimeZone() async {
     if (kIsWeb) {
@@ -26,14 +21,6 @@ class NotificationService {
     final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName!));
   }
-
-/*
-  void configureSelectNotificationSubject(context, models.Person person) {
-    selectNotificationSubject.stream.listen((String? payload) async {
-
-    });
-  }
-*/
 
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();

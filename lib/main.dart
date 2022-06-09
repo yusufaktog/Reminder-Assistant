@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,12 +27,19 @@ Future<void> main() async {
     home: const ReminderApp(),
     debugShowCheckedModeBanner: false,
     theme: mainTheme,
+    initialRoute: FirebaseAuth.instance.currentUser == null ? ReminderApp.routeName : AuthorizedPersonPage.routeName,
+    routes: {
+      ReminderApp.routeName: (context) => const ReminderApp(),
+      AuthorizedPersonPage.routeName: (context) => const AuthorizedPersonPage(),
+    },
   ));
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: NotificationService().onSelectNotification);
 }
 
 class ReminderApp extends StatefulWidget {
+  static String routeName = "Reminder";
+
   const ReminderApp({Key? key}) : super(key: key);
 
   @override
@@ -43,6 +51,8 @@ class _ReminderAppState extends State<ReminderApp> {
   final PersonService _personService = PersonService();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+
+  late StreamSubscription<User?> user;
 
   String _name = "";
   String _email = "";
@@ -223,8 +233,7 @@ class _ReminderAppState extends State<ReminderApp> {
 
                     if (_authSuccess) {
                       _saveUserCredentials(_isChecked);
-                      switchPage(context,
-                          AuthorizedPersonPage(person: models.Person(id: FirebaseAuth.instance.currentUser!.uid, name: _name, email: _email)));
+                      switchPage(context, const AuthorizedPersonPage());
                     }
                   },
                 ),
@@ -278,6 +287,19 @@ class _ReminderAppState extends State<ReminderApp> {
   void initState() {
     super.initState();
     _loadUserEmailPassword();
+    user = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user == null) {
+        debugPrint('User is currently signed out!');
+      } else {
+        debugPrint('User is signed in!');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    user.cancel();
+    super.dispose();
   }
 
   void _loadUserEmailPassword() async {
@@ -287,9 +309,9 @@ class _ReminderAppState extends State<ReminderApp> {
       var _savedPassword = _prefs.getString("password") ?? "";
       var _savedRememberMe = _prefs.getBool("remember_me") ?? false;
 
-      debugPrint(_savedEmail);
-      debugPrint(_savedPassword);
-      debugPrint(_savedRememberMe.toString());
+      // debugPrint(_savedEmail);
+      // debugPrint(_savedPassword);
+      // debugPrint(_savedRememberMe.toString());
       if (_savedRememberMe) {
         setState(() {
           _isChecked = true;
@@ -300,7 +322,7 @@ class _ReminderAppState extends State<ReminderApp> {
         });
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 }

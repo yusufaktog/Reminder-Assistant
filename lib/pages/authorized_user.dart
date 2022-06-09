@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:reminder_app/constants.dart';
 import 'package:reminder_app/main.dart';
 import 'package:reminder_app/model/task.dart';
 import 'package:reminder_app/pages/task_card.dart';
 import 'package:reminder_app/service/auth.dart';
+import 'package:reminder_app/service/notification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../builders.dart';
-import '../model/person.dart' as models;
 import 'create_task.dart';
 
 class AuthorizedPersonPage extends StatefulWidget {
-  final models.Person person;
-
-  const AuthorizedPersonPage({Key? key, required this.person}) : super(key: key);
+  static String routeName = "Authorized";
+  const AuthorizedPersonPage({Key? key}) : super(key: key);
 
   @override
   _AuthorizedPersonPageState createState() => _AuthorizedPersonPageState();
@@ -92,7 +93,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
               StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection("People")
-                      .doc(widget.person.id)
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
                       .collection("Tasks")
                       .orderBy(_selectedSortFieldName, descending: _isDescending)
                       .snapshots(),
@@ -159,4 +160,30 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _runWhileAppIsTerminated();
+  }
+}
+
+void _runWhileAppIsTerminated() async {
+  var details = await NotificationService().flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+  if (!details!.didNotificationLaunchApp) {
+    return;
+  }
+
+  if (details.payload == null) {
+    return;
+  }
+
+  final prefs = await SharedPreferences.getInstance();
+
+  if (prefs.get('uid') == null) {
+    return;
+  }
+
+  NotificationService().onSelectNotification(details.payload);
 }
