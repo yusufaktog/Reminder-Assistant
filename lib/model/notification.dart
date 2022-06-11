@@ -11,5 +11,3 @@ class ReceivedNotification {
   final String? body;
   final String? payload;
 }
-
-enum RepetitionType { daily, weekly, monthly, yearly }

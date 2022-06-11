@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reminder_app/pages/authorized_user.dart';
 import 'package:reminder_app/service/auth.dart';
@@ -209,24 +208,42 @@ class _ReminderAppState extends State<ReminderApp> {
                   onPressed: () async {
                     bool _authSuccess = true;
 
+                    if (_email.isEmpty) {
+                      showToastMessage(createErrorInfo(FieldName.email), mainTheme.primaryColor, 16);
+                    }
+
+                    if (_password.isEmpty) {
+                      showToastMessage(createErrorInfo(FieldName.password), mainTheme.primaryColor, 16);
+                    }
+
                     if (_hasAccount) {
                       await _authService.signIn(_email, _password).catchError((e) {
-                        Fluttertoast.showToast(msg: e.toString().split("]")[1], webShowClose: true, webPosition: "center", timeInSecForIosWeb: 3);
+                        var message = e.toString().split(errorTypeSeparator).length == 2 ? e.toString().split(errorTypeSeparator)[1] : e.toString();
+
+                        message = message.split(sentenceSeparator).length == 3 ? message.split(sentenceSeparator)[0] : message;
+
+                        if (_email.isNotEmpty && _password.isNotEmpty) {
+                          showToastMessage(message, mainTheme.primaryColor, 16);
+                        }
                         _authSuccess = false;
                       });
                     }
 
                     if (_name.isEmpty && !_hasAccount) {
-                      Fluttertoast.showToast(msg: "Field 'name' can not be empty!", webShowClose: true, webPosition: "center", timeInSecForIosWeb: 3);
+                      showToastMessage(createErrorInfo(FieldName.name), mainTheme.primaryColor, 16);
                     }
 
                     if (_password.compareTo(_confirmPassword) != 0 && !_hasAccount) {
-                      Fluttertoast.showToast(msg: "Passwords are not the same", webShowClose: true, webPosition: "center", timeInSecForIosWeb: 3);
+                      showToastMessage(ErrorString.password, mainTheme.primaryColor, 16);
                     }
 
                     if (!_hasAccount) {
                       await _personService.createPerson(models.Person(name: _name, email: _email), _password).catchError((e) {
-                        Fluttertoast.showToast(msg: e.toString().split("]")[1], webShowClose: true, webPosition: "center", timeInSecForIosWeb: 3);
+                        var message = e.toString().split(errorTypeSeparator).length == 2 ? e.toString().split(errorTypeSeparator)[1] : e.toString();
+
+                        if (_name.isNotEmpty && _password.isNotEmpty) {
+                          showToastMessage(message, mainTheme.primaryColor, 16);
+                        }
                         _authSuccess = false;
                       });
                     }
@@ -274,26 +291,19 @@ class _ReminderAppState extends State<ReminderApp> {
 
     if (!_isChecked) {
       sharedPreferences.clear();
-      debugPrint("user does not want to be remembered!");
       return;
     }
 
-    sharedPreferences.setBool("remember_me", _isChecked);
-    sharedPreferences.setString('email', _email);
-    sharedPreferences.setString('password', _password);
+    sharedPreferences.setBool(FieldName.rememberMe, _isChecked);
+    sharedPreferences.setString(FieldName.email, _email);
+    sharedPreferences.setString(FieldName.password, _password);
   }
 
   @override
   void initState() {
     super.initState();
     _loadUserEmailPassword();
-    user = FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user == null) {
-        debugPrint('User is currently signed out!');
-      } else {
-        debugPrint('User is signed in!');
-      }
-    });
+    user = FirebaseAuth.instance.authStateChanges().listen((user) {});
   }
 
   @override
@@ -305,18 +315,15 @@ class _ReminderAppState extends State<ReminderApp> {
   void _loadUserEmailPassword() async {
     try {
       SharedPreferences _prefs = await SharedPreferences.getInstance();
-      var _savedEmail = _prefs.getString("email") ?? "";
-      var _savedPassword = _prefs.getString("password") ?? "";
-      var _savedRememberMe = _prefs.getBool("remember_me") ?? false;
+      var _savedEmail = _prefs.getString(FieldName.email) ?? "";
+      var _savedPassword = _prefs.getString(FieldName.password) ?? "";
+      var _savedRememberMe = _prefs.getBool(FieldName.rememberMe) ?? false;
 
-      // debugPrint(_savedEmail);
-      // debugPrint(_savedPassword);
-      // debugPrint(_savedRememberMe.toString());
       if (_savedRememberMe) {
         setState(() {
           _isChecked = true;
-          _email = _savedEmail ?? "";
-          _password = _savedPassword ?? "";
+          _email = _savedEmail;
+          _password = _savedPassword;
           _emailController.text = _email;
           _passwordController.text = _password;
         });

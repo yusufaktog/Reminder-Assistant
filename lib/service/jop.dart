@@ -32,14 +32,3 @@ Future<void> sendSms(String phoneNumber, String sms) async {
   );
   await launchUrl(launchUri);
 }
-
-enum JobType {
-  none("none"),
-  makePhoneCall("phone call"),
-  sendEmail("send email"),
-  sendSms("send sms"),
-  openUrl("open url");
-
-  const JobType(this.value);
-  final String value;
-}

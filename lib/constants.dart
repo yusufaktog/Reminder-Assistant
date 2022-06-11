@@ -4,8 +4,6 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'model/notification.dart';
-
 const FirebaseOptions options = FirebaseOptions(
     apiKey: "AIzaSyBQGsZZA1_Ffkdqz6PPsDh08VAtVdggQxY",
     appId: "1:1064158595393:android:1fbf753402a657d78039c0",
@@ -14,23 +12,16 @@ const FirebaseOptions options = FirebaseOptions(
     authDomain: "reminder-assistant-9e6a4.firebaseapp.com",
     storageBucket: "reminder-assistant-9e6a4.appspot.com");
 
-class ThemeModel with ChangeNotifier {
-  final ThemeMode _mode;
-
-  ThemeMode get mode => _mode;
-
-  ThemeModel(this._mode);
-}
+const String initialTimeText = "Open Time Picker";
+const String microSecondsSeparator = ".";
+const errorTypeSeparator = "]";
+const sentenceSeparator = ".";
 
 final ThemeData mainTheme = ThemeData(
-// Define the default brightness and colors.
   brightness: Brightness.dark,
   primaryColorDark: Colors.grey,
   primaryColor: Colors.deepPurple,
-
   backgroundColor: Colors.white70,
-
-// Define the default font family.
   fontFamily: 'Georgia',
   textTheme: const TextTheme(
     headline1: TextStyle(color: Colors.black, fontSize: 36.0, fontWeight: FontWeight.bold),
@@ -42,9 +33,6 @@ final ThemeData mainTheme = ThemeData(
     bodyText1: TextStyle(fontSize: 18.0, color: Colors.black),
     bodyText2: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
   ),
-
-// Define the default `TextTheme`. Use this to specify the default
-// text styling for headlines, titles, bodies of text, and more.
 );
 
 const DatePickerTheme datePickerTheme = DatePickerTheme(
@@ -53,11 +41,6 @@ const DatePickerTheme datePickerTheme = DatePickerTheme(
     cancelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
     itemStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
     doneStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18));
-
-const String repetitionError = "Please set a repetition option";
-const String timeError = "Please set a start time";
-const String titleError = "Field 'Title' cant be empty";
-const String descriptionError = "Field 'description' cant be empty";
 
 const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails('repeating channel id', 'repeating channel name',
     channelDescription: 'repeating description', enableVibration: true, importance: Importance.max, priority: Priority.high);
@@ -84,86 +67,149 @@ void showToastMessage(String message, Color textColor, double fontSize) {
       webPosition: "center");
 }
 
-RepetitionType convertStringToRepetitionType(String repetition) {
-  switch (repetition.toLowerCase()) {
-    case "daily":
-      return RepetitionType.daily;
-    case "weekly":
-      return RepetitionType.weekly;
-    case "monthly":
-      return RepetitionType.monthly;
-    case "yearly":
-    default:
-      return RepetitionType.yearly;
-  }
-}
-
 int convertPriorityToInteger(String priority) {
-  switch (priority.toLowerCase()) {
-    case "minor":
-      return 1;
-    case "medium":
-      return 2;
-    case "major":
-      return 3;
-    case "critical":
-      return 4;
+  switch (priority) {
+    case TaskPriority.minor:
+      return TaskPriority.one;
+    case TaskPriority.medium:
+      return TaskPriority.two;
+    case TaskPriority.major:
+      return TaskPriority.three;
+    case TaskPriority.critical:
+      return TaskPriority.four;
     default:
-      return 1;
+      return TaskPriority.one;
   }
 }
 
 String convertPriorityToString(int priority) {
   switch (priority) {
-    case 1:
-      return "Minor";
-    case 2:
-      return "Medium";
-    case 3:
-      return "Major";
-    case 4:
-      return "Critical";
+    case TaskPriority.one:
+      return TaskPriority.minor;
+    case TaskPriority.two:
+      return TaskPriority.medium;
+    case TaskPriority.three:
+      return TaskPriority.major;
+    case TaskPriority.four:
+      return TaskPriority.critical;
     default:
-      return "Minor";
+      return TaskPriority.minor;
   }
 }
 
-String convertSelectionToFieldName(selectedSortType) {
+String convertSelectionToFieldName(String selectedSortType) {
   switch (selectedSortType) {
-    case "By Priority (Desc)":
-    case "By Priority (Asc)":
-      return "priority";
-    case "By Date (Desc)":
-    case "By Date (Asc)":
+    case SortType.byPriorityDesc:
+    case SortType.byPriorityAsc:
+      return FieldName.priority;
+    case SortType.byDateAsc:
+    case SortType.byDateDesc:
     default:
-      return "time";
+      return FieldName.time;
   }
 }
 
-List<String> createDialogElements(String jop) {
+List<String> createDialogElements(String job) {
   List<String> elements = [];
 
-  switch (jop.toLowerCase()) {
-    case "none":
+  switch (job) {
+    case Job.none:
       break;
-    case "phone call":
+    case Job.makePhoneCall:
       elements.add("Phone Number");
       break;
-    case "send email":
+    case Job.sendEmail:
       elements.add("Email Address");
       elements.add("Subject");
       elements.add("Body");
       break;
-    case "send sms":
+    case Job.sendSms:
       elements.add("Phone Number");
       elements.add("Body");
       break;
-    case "open url":
+    case Job.openUrl:
       elements.add("Url");
       break;
   }
 
   return elements;
+}
+
+String createErrorInfo(String fieldName) {
+  return "Field $fieldName can not be empty!";
+}
+
+class ErrorString {
+  static const password = "Passwords are not the same";
+  static const repetition = "Please set a repetition option";
+  static const time = "Please set a start time";
+  static const timeAndRepetitionMissMatch = "With This Repetition Option Time can not be chosen...";
+}
+
+class FieldName {
+  static const password = "password";
+  static const repetition = "repetition";
+  static const time = "time";
+  static const name = "name";
+  static const email = "email";
+  static const description = "description";
+  static const title = "title";
+  static const priority = "priority";
+  static const rememberMe = "rememberMe";
+  static const uid = "uid";
+}
+
+class Repetition {
+  static const none = "None";
+  static const minutely = "Every Minute";
+  static const hourly = "Hourly";
+  static const daily = "Daily";
+  static const weekly = "Weekly";
+  static const monthly = "Monthly";
+  static const yearly = "Yearly";
+
+  static const List<String> items = <String>[
+    Repetition.none,
+    Repetition.minutely,
+    Repetition.hourly,
+    Repetition.daily,
+    Repetition.weekly,
+    Repetition.monthly,
+    Repetition.yearly
+  ];
+}
+
+class Job {
+  static const none = "None";
+  static const makePhoneCall = "Phone Call";
+  static const sendEmail = "Send Email";
+  static const sendSms = "Send Sms";
+  static const openUrl = "Open Url";
+
+  static const List<String> items = <String>[Job.none, Job.makePhoneCall, Job.sendEmail, Job.sendSms, Job.openUrl];
+}
+
+class TaskPriority {
+  static const minor = "Minor";
+  static const medium = "Medium";
+  static const major = "Major";
+  static const critical = "Critical";
+
+  static const one = 1;
+  static const two = 2;
+  static const three = 3;
+  static const four = 4;
+
+  static const List<String> items = <String>[TaskPriority.minor, TaskPriority.medium, TaskPriority.major, TaskPriority.critical];
+}
+
+class SortType {
+  static const byDateAsc = "By Date (Asc)";
+  static const byDateDesc = "By Date (Desc)";
+  static const byPriorityAsc = "By Priority (Asc)";
+  static const byPriorityDesc = "By Priority (Desc)";
+
+  static const List<String> items = <String>[SortType.byDateAsc, SortType.byDateDesc, SortType.byPriorityAsc, SortType.byPriorityDesc];
 }
 
 const emptyWidget = SizedBox();

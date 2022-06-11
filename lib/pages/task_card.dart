@@ -89,7 +89,7 @@ class _TaskCardState extends State<TaskCard> {
                         color: mainTheme.primaryColor,
                       ),
                       title: Text(
-                        widget.task.repetition == "No Repetition" ? "None" : widget.task.repetition,
+                        widget.task.repetition,
                         style: const TextStyle(color: Colors.black, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
@@ -117,13 +117,13 @@ class _TaskCardState extends State<TaskCard> {
 
   Color adjustCardPriorityColor(String priority) {
     switch (priority) {
-      case "Minor":
+      case TaskPriority.minor:
         return Colors.grey;
-      case "Medium":
+      case TaskPriority.medium:
         return Colors.lightGreen;
-      case "Major":
+      case TaskPriority.major:
         return Colors.yellow;
-      case "Critical":
+      case TaskPriority.critical:
         return Colors.red;
       default:
         return Colors.grey;

@@ -7,7 +7,6 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants.dart';
-import '../model/notification.dart';
 import 'jop.dart';
 
 class NotificationService {
@@ -43,12 +42,12 @@ class NotificationService {
   }
 
   Future<void> createCustomScheduledNotification(
-      String title, String body, int notificationId, DateTime dateTime, RepetitionType repetitionType, String taskId) async {
+      String title, String body, int notificationId, DateTime dateTime, String repetition, String taskId) async {
     await flutterLocalNotificationsPlugin.zonedSchedule(notificationId, title, body, createScheduledDate(dateTime), platformChannelSpecifics,
         payload: taskId,
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: convertToDateTimeComponents(repetitionType));
+        matchDateTimeComponents: convertToDateTimeComponents(repetition));
   }
 
   tz.TZDateTime createScheduledDate(DateTime dateTime) {
@@ -56,15 +55,17 @@ class NotificationService {
     return scheduledDate;
   }
 
-  DateTimeComponents convertToDateTimeComponents(RepetitionType repetitionType) {
-    switch (repetitionType) {
-      case RepetitionType.daily:
+  DateTimeComponents convertToDateTimeComponents(String repetition) {
+    switch (repetition) {
+      case Repetition.daily:
         return DateTimeComponents.time;
-      case RepetitionType.weekly:
+      case Repetition.weekly:
         return DateTimeComponents.dayOfWeekAndTime;
-      case RepetitionType.monthly:
+      case Repetition.monthly:
         return DateTimeComponents.dayOfMonthAndTime;
-      case RepetitionType.yearly:
+      case Repetition.yearly:
+        return DateTimeComponents.dateAndTime;
+      default:
         return DateTimeComponents.dateAndTime;
     }
   }
@@ -75,10 +76,10 @@ class NotificationService {
     String url = "";
     String subject = "";
     String body = "";
-    String jop = "none";
+    String job = Job.none;
 
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-        .collection('People')
+        .collection("People")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("Tasks")
         .doc(payload)
@@ -89,33 +90,33 @@ class NotificationService {
       return;
     }
 
-    jop = documentSnapshot["jop"];
+    job = documentSnapshot["job"];
 
-    switch (jop.toLowerCase()) {
-      case "open url":
+    switch (job) {
+      case Job.openUrl:
         url = documentSnapshot["url"];
         await openUrl(url);
         break;
 
-      case "phone call":
+      case Job.makePhoneCall:
         phoneNumber = documentSnapshot["phoneNumber"];
         await makePhoneCall(phoneNumber);
         break;
 
-      case "send email":
+      case Job.sendEmail:
         emailAddress = documentSnapshot["emailAddress"];
         subject = documentSnapshot["subject"];
         body = documentSnapshot["body"];
         await sendEmail(emailAddress, subject, body);
         break;
 
-      case "send sms":
+      case Job.sendSms:
         phoneNumber = documentSnapshot["phoneNumber"];
         body = documentSnapshot["body"];
         await sendSms(phoneNumber, body);
         break;
 
-      case "none":
+      case Job.none:
       default:
         break;
     }

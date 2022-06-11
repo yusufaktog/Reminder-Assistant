@@ -14,6 +14,7 @@ import 'create_task.dart';
 
 class AuthorizedPersonPage extends StatefulWidget {
   static String routeName = "Authorized";
+
   const AuthorizedPersonPage({Key? key}) : super(key: key);
 
   @override
@@ -24,9 +25,9 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
   final AuthService _authService = AuthService();
 
   var _selectedItem = "";
-  var _selectedSortFieldName = "time";
+  var _selectedSortFieldName = FieldName.time;
   var _isDescending = false;
-  final List<String> _dropDownMenuItems = List.of({"By Date (Asc)", "By Date (Desc)", "By Priority (Desc)", "By Priority (Asc)"});
+  final List<String> _dropDownMenuItems = List.of(SortType.items);
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +122,7 @@ class _AuthorizedPersonPageState extends State<AuthorizedPersonPage> {
                                           priority: convertPriorityToString(tasks[index]["priority"]),
                                           notificationId: tasks[index]["notificationId"],
                                           repetition: tasks[index]['repetition'],
-                                          jop: tasks[index].data().toString().contains("jop") ? tasks[index]["jop"] : "none"),
+                                          jop: tasks[index].data().toString().contains("job") ? tasks[index]["job"] : Job.none),
                                     ),
                                   ),
                                 ),
@@ -181,7 +182,7 @@ void _runWhileAppIsTerminated() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  if (prefs.get('uid') == null) {
+  if (prefs.get(FieldName.uid) == null) {
     return;
   }
 

@@ -12,28 +12,4 @@ class PersonService {
         .doc(_auth.currentUser!.uid)
         .set({'id': _auth.currentUser!.uid, 'name': person.name, 'email': person.email}));
   }
-
-//final _notifier = ValueNotifier<ThemeModel>(ThemeModel(ThemeMode.light));
-
-/*  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeModel>(
-      valueListenable: _notifier,
-      builder: (_, model, __) {
-        final mode = model.mode;
-        return MaterialApp(
-          theme: ThemeData.light(), // Provide light theme.
-          darkTheme: ThemeData.dark(), // Provide dark theme.
-          themeMode: mode, // Decides which theme to show.
-          home: Scaffold(
-            appBar: AppBar(title: Text('Light/Dark Theme')),
-            body: RaisedButton(
-              onPressed: () => _notifier.value = ThemeModel(mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light),
-              child: Text('Toggle Theme'),
-            ),
-          ),
-        );
-      },
-    );
-  }*/
 }
